@@ -1,0 +1,9 @@
+plataforma:netflix
+genero:survival@horror
+idiomas:ingles@castellano@aleman
+subtitulos:castellano@ingles
+sinopsis:de_matar_vampiros
+web:van_hellsing_web_netflix
+temporada1:episodio1@49@episodio2@47@episodio3@49@episodio4@50@episodio5@47
+temporada2:episodio11@52
+temporada3:episodio23@56@episodio24@54

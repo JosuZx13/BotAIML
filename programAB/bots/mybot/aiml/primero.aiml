@@ -1,0 +1,141 @@
+<?xml version="1.0"
+  encoding="UTF-8"?>
+<aiml version="2.0">
+
+<!--Primera Regla-->
+<category>
+  <pattern>Hola</pattern>
+  <template>Hola, que tal?</template>
+</category>
+
+<category>
+  <pattern>Yo bien, que tal tu</pattern>
+  <template>Estoy genial!!! Me encanta conocer gente nueva.</template>
+</category>
+
+<category>
+  <pattern>Genial Como te llamas</pattern>
+  <template>Mi nombre es HALfonso</template>
+</category>
+
+<!-- Ejercicio 03 -->
+
+<category>
+  <pattern>Tu nombre</pattern>
+  <template><srai>GENIAL COMO TE LLAMAS</srai></template>
+</category>
+
+<!-- Ejercicio 04 -->
+
+<category>
+  <pattern>Cual es el color de ojos de <set>compi</set></pattern>
+  <template>El color de ojos de <star/> es <map name="ojos"><star/></map></template>
+</category>
+
+<category>
+  <pattern>Cual es el color de pelo de <set>compi</set></pattern>
+  <template>El color de pelo de <star/> es <map name="pelo"><star/></map></template>
+</category>
+
+
+<!-- LOOP -->
+<category>
+
+  <pattern>CUENTA HASTA <set>number</set></pattern>
+  <template>
+    <think>
+      <set var="contador">1</set>
+      <set var="fin"><star/></set>
+    </think>
+    <condition var="contador">
+      <li>
+        <value><get var="fin"/></value>
+        <get var="fin"/>
+      </li>
+
+      <li>
+        <get var="contador"/>
+
+        <think>
+          <set var="contador">
+            <map name="successor"><get var="contador"/></map>
+          </set>
+        </think>
+        <loop/>
+      </li>
+    </condition>
+  </template>
+
+</category>
+
+<!-- Ejercicio 05 -->
+
+<category>
+  <pattern>Que companieros son *</pattern>
+  <template>
+    <think>
+      <!--Listamos los compañeros -->
+		  <set var="nombres"><readset>compi</readset></set>
+      
+      <!-- Funcion que hace un conteo de los compañeros que hay -->
+      <set var="cantidad"><srai>COUNT <get var="nombres"/></srai></set>
+
+      <!-- Se guarda el color elegido -->
+      <set var="colorPelo"><star/></set>
+      <!-- El bucle comienza en uno -->
+      <set var="inicio">1</set>
+      <!-- Y termina en la cantidad de compis que hay -->
+      <set var="salida"><get var="cantidad"/></set>
+    </think>
+
+    <condition var="inicio">
+      <!-- Si entra en esta primera, no pasará por el loop -->
+      <li>
+        <!-- Si el valor introducido en CONDITION coincide con lo que está entre value, muestra la frase -->
+        <value><get var="salida"/></value>
+        Esos son los que tiene el pelo <get var="colorPelo"/>
+      </li>
+
+      <!-- En la otra se comparara el color del pelo con los del map -->
+      <li>
+        <think>
+          <!-- selecciono el nombre del compañero que toque -->
+          <set var="seleccionado">
+            <srai>SELECTITEM <get var="inicio"/> IN <get var="nombres"/></srai>
+          </set>
+
+          <!-- Cojo el color de su pelo desde el map -->
+          <set var="suPelo">
+            <map name="pelo"><get var="seleccionado"/></map>
+          </set>
+
+          <!-- Map de aiml para incrementar un valor -->
+            <set var="inicio">
+              <map name="successor"><get var="inicio"/></map>
+            </set>
+        </think>
+
+        <condition var="colorPelo">
+          <!-- li es como apartados, simulando un switch, pero va pasando por todos -->
+          <li>
+            <!-- esto sería como el if -->
+            <value><get var="suPelo"/></value>
+            
+            <!-- Se muestra el nombre de la persona que está siendo comparada de cumplirse -->
+            <get var="seleccionado"/>
+            
+          </li>
+          
+        </condition>
+        
+          <!-- Hace que vuelva al principio de la condicion -->
+        <loop/>
+      </li> <!-- Del primer CONDITION -->
+
+    </condition>
+  
+  </template>
+</category>
+
+
+</aiml>

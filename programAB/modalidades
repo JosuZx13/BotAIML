@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<category>
+  <pattern>Buenos dias(, <bot name="name"/>)</pattern>
+  <template>
+    <think>
+      <set name="topic">finalizado</set>
+    </think>
+    Saludos, <bot name="botmaster"/>
+  </template>
+</category>
+
+<!-- No se permite otra cosa que no sea elegir algo que hacer -->
+<topic name="finalizado">
+
+  <category>
+    <pattern> ^ </pattern>
+    <template>En modo descanso</template>
+  </category>
+
+  <category>
+    <pattern>Que puedo hacer</pattern>
+    <template>
+      <think>
+          <set name="topic">seleccion</set>
+      </think>
+      Existen diversas modalidades
+      0_ Entrevista (Nivel 0)
+      1_ Inclusion de Contenidos (Nivel 1)
+      2_ Consultas sobre los Contenidos (Nivel 2)
+      3_ Reproduccion Multimedia (Nivel 3)
+      Salir
+    </template>
+  </category>
+
+</topic>
+
+<!-- Se elige una accion a realizar -->
+<topic name="seleccion">
+  <category>
+
+    <pattern>^</pattern>
+    <template>
+      <think>
+        <set var="accion">
+          <star/>
+        </set>
+      </think>
+      
+      <condition var="accion">
+        <li value="0">
+          <think>
+            <!-- Nivel 0 - Entrevista -->
+            <set name="topic">nivel0</set>
+          </think>
+          Nivel 0. Muy bien, comencemos la entrevista
+        </li>
+
+        <li value="1">
+          <think>
+            <!-- Nivel 1 - Inclusion de Contenidos -->
+            <set name="topic">nivel1</set>
+          </think>
+          Nivel 1. Vamos a aniadir algo de contenido
+        </li>
+
+        <li value="2">
+          <think>
+            <!-- Nivel 2 - Consultas sobre los Contenidos -->
+            <set name="topic">nivel2</set>
+          </think>
+          Nivel 2. Aun no esta desarrollado. Elija otro
+        </li>
+
+        <li value="3">
+          <think>
+            <!-- Nivel 3 - Reproduccion Multimedia -->
+            <set name="topic">nivel3</set>
+          </think>
+          Nivel 3. Aun no esta desarrollado. Elija otro
+        </li>
+        
+        <li>
+          Indique correctamente que quiere hacer
+        </li>
+
+      </condition>
+    </template>
+  </category>
+
+</topic>
+
+</aiml>

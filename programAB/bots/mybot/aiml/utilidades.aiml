@@ -1,0 +1,1527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+	<!-- File: utilidades.aiml -->
+	<!-- Author: Raul y Rocio -->
+	<!-- Last modified: February 17, 2016 -->
+
+	<!-- Conjunto de reglas para devolver la primera palabra de una frase -->
+	<!-- Si la frase no contiene palabras devuelve "$" -->
+	<category>
+		<pattern>TOP * *</pattern>
+		<template>
+			<star index="1"/>
+		</template>
+	</category>
+	<category>
+		<pattern>TOP *</pattern>
+		<template>
+			<star index="1"/>
+		</template>
+	</category>
+	<category>
+		<pattern>TOP</pattern>
+		<template>$</template>
+	</category>
+	<!-- Conjunto de reglas para devolver el resto de palabras de una frase execto la primera -->
+	<!-- Si la frase no contiene palabras devuelve "$" -->
+	<category>
+		<pattern>REMAIN * *</pattern>
+		<template>
+			<star index="2"/>
+		</template>
+	</category>
+	<category>
+		<pattern>REMAIN *</pattern>
+		<template>$</template>
+	</category>
+	<category>
+		<pattern>REMAIN</pattern>
+		<template>$</template>
+	</category>
+	<!-- Regla que devuelve el numero de palabras que se pasan como argumento en <star/> -->
+	<category>
+		<pattern>COUNT</pattern>
+		<template>0</template>
+	</category>
+	<category>
+		<pattern>COUNT *</pattern>
+		<template>
+			<think>
+				<set var="count">0</set>
+				<set var="list">
+					<star/>
+				</set>
+				<set var="item">
+					<srai>TOP <get var="list"/></srai>
+				</set>
+			</think>
+			<condition var="item">
+				<li>
+					<value>$</value>
+					<get var="count"/>
+				</li>
+				<li>
+					<think>
+						<set var="count">
+							<map>
+								<name>successor</name>
+								<get var="count"/>
+							</map>
+						</set>
+						<set var="list">
+							<srai>REMAIN <get var="list"/></srai>
+						</set>
+						<set var="item">
+							<srai>TOP <get var="list"/></srai>
+						</set>
+					</think>
+					<loop/>
+				</li>
+			</condition>
+		</template>
+	</category>
+	<!-- Regla que busca un elemento <star/> en <star index="2"/> si existe devuelve la posicion, sino devuelve 0 -->
+	<category>
+		<pattern>
+        FINDITEM * IN *
+    </pattern>
+		<template>
+			<think>
+				<set var="buscado">
+					<uppercase><star/></uppercase>
+				</set>
+				<set var="lista">
+					<star index="2"/>
+				</set>
+				<set var="item">
+					<uppercase><srai>TOP <get var="lista"/></srai></uppercase>
+				</set>
+				<set var="count">1</set>
+			</think>
+			<condition var="item">
+				<li value="$">0</li>
+				<li><value><get var="buscado"/></value><get var="count"/></li>
+				<li>
+					<think>
+						<set var="count">
+							<map>
+								<name>successor</name>
+								<get var="count"/>
+							</map>
+						</set>
+						<set var="lista">
+							<srai>REMAIN <get var="lista"/></srai>
+						</set>
+						<set var="item">
+							<uppercase><srai>TOP <get var="lista"/></srai></uppercase>
+						</set>
+					</think>
+					<loop/>
+				</li>
+			</condition>
+		</template>
+	</category>
+	<!-- Regla que selecciona la palabra de posicion number(<star/>) en <star index="2"> Si la posicion es mayor al numero de palabras devuelve "$" -->
+	<category>
+		<pattern>
+        SELECTITEM <set>number</set> IN *
+    </pattern>
+		<template>
+			<think>
+				<set var="count">
+					<star/>
+				</set>
+				<set var="list">
+					<star index="2"/>
+				</set>
+				<set var="item">
+					<srai>TOP <get var="list"/></srai>
+				</set>
+			</think>
+			<condition var="count">
+				<li value="0">$</li>
+				<li>
+					<value>1</value>
+					<get var="item"/>
+				</li>
+				<li>
+					<think>
+						<set var="count">
+							<map>
+								<name>predecessor</name>
+								<get var="count"/>
+							</map>
+						</set>
+						<think>
+							<set var="list">
+								<srai>REMAIN <get var="list"/></srai>
+							</set>
+						</think>
+						<think>
+							<set var="item">
+								<srai>TOP <get var="list"/></srai>
+							</set>
+						</think>
+					</think>
+					<loop/>
+				</li>
+			</condition>
+		</template>
+	</category>
+	
+	<!-- Regla que elimina la palabra de posicion number(<star/>) en <star index="2"> -->
+	<category>
+		<pattern>
+        REMOVEITEM <set>number</set> IN *
+    </pattern>
+		<template>
+			<think>
+				<set var="count"><star/></set>
+				<set var="list"><star index="2"/></set>
+				<set var="list_1"/>
+				<set var="item"><srai>TOP <get var="list"/></srai></set>
+				<set var="list"><srai>REMAIN <get var="list"/></srai></set>
+			</think>
+			<condition var="count">
+				<li value="1"><get var="list_1"/> <get var="list"/></li>
+				<li>
+					<think>
+						<set var="count">
+							<map>
+								<name>predecessor</name>
+								<get var="count"/>
+							</map>
+						</set>
+						<set var="list_1">
+							<get var="list_1"/>
+							<get var="item"/>
+						</set>
+						<set var="item">
+							<srai>TOP <get var="list"/></srai>
+						</set>
+						<set var="list">
+							<srai>REMAIN <get var="list"/></srai>
+						</set>
+						<condition var="list">
+							<li value="$">
+								<set var="list"/>
+							</li>
+						</condition>
+						<condition var="item">
+							<li value="$">
+								<set var="item"/>
+							</li>
+						</condition>
+					</think>
+					<loop/>
+				</li>
+			</condition>
+		</template>
+	</category>
+	
+	<!-- Regla que aniade una palabra al principio de una frase si la palabra no estaba ya en la frase -->
+	<category>
+		<pattern>
+        ADDITEM * IN *
+    </pattern>
+		<template>
+			<think>
+				<set var="set">
+					<star index="2"/>
+				</set>
+			</think>
+			<think>
+				<set var="pos">
+					<srai>FINDITEM <star/> IN <get var="set"/></srai>
+				</set>
+			</think>
+			<condition var="pos">
+				<li value="0">
+					<think>
+						<set var="where"><srai>COUNT <get var="set"/></srai></set>
+						<condition var="where">
+							<li value="0"><set var="set"><star/></set></li>
+							<li><set var="set"><star/> <get var="set"/></set></li>
+						</condition>
+					</think>
+				</li>
+			</condition>
+			<get var="set"/>
+		</template>
+	</category>
+	
+	<!-- Regla que genera un numero aleatorio en el rango de 1 a number -->
+	<category>
+		<pattern>
+        RANDOM <set>number</set>
+    </pattern>
+		<template>
+			<think>
+				<set var="count">
+					<star/>
+				</set>
+				<set var="elegido">1</set>
+			</think>
+			<condition var="count">
+				<li>
+					<value>1</value>
+					<get var="elegido"/>
+				</li>
+				<li>
+					<think>
+						<random>
+							<li>
+								<set var="count">
+									<map>
+										<name>predecessor</name>
+										<get var="count"/>
+									</map>
+								</set>
+								<set var="elegido">
+									<map>
+										<name>successor</name>
+										<get var="elegido"/>
+									</map>
+								</set>
+							</li>
+							<li>
+								<set var="count">
+									<map>
+										<name>predecessor</name>
+										<get var="count"/>
+									</map>
+								</set>
+							</li>
+							<li>
+								<set var="count">
+									<map>
+										<name>predecessor</name>
+										<get var="count"/>
+									</map>
+								</set>
+							</li>
+						</random>
+					</think>
+					<loop/>
+				</li>
+			</condition>
+		</template>
+	</category>
+	<!-- Regla que permite iterar sobre las distintas palabras de una frase (esta asociado con NEXT)-->
+	<category>
+		<pattern>ITERATE *</pattern>
+		<template>
+			<think>
+				<set name="iterator">
+					<star/>
+				</set>
+			</think>
+			<srai>NEXT</srai>
+		</template>
+	</category>
+	<!-- Regla que permite iterar sobre las distintas palabras de una frase (esta asociado con ITERATE)-->
+	<category>
+		<pattern>NEXT</pattern>
+		<template>
+			<condition name="iterator">
+				<li value="$">$</li>
+				<li>
+					<srai>TOP <get name="iterator"/></srai>
+					<think>
+						<set name="iterator">
+							<srai>REMAIN <get name="iterator"/></srai>
+						</set>
+					</think>
+				</li>
+			</condition>
+		</template>
+	</category>
+	<!-- Regla que permite comparar dos cadenas, si son iguales devuelve YES en otro caso devuelve NO-->
+	<category>
+		<pattern>
+        COMPARE * WITH *
+    	</pattern>
+		<template>
+			<think>
+				<set var="local">
+					<uppercase>
+						<star index="2"/>
+					</uppercase>
+				</set>
+			</think>
+			<condition var="local">
+				<li><value><uppercase><star/></uppercase></value>YES</li>
+				<li>NO</li>
+			</condition>
+		</template>
+	</category>
+	<!-- Regla que verifica si una fecha es o no valida, devuelve YES en otro caso devuelve NO -->
+	<!-- Asume que los dias van de 1 a 31, que los meses van entre 1 y 12 y que los años van entre 2017 y 2027 -->
+	<category>
+		<pattern>
+        	VALIDDATE * * *
+    	</pattern>
+		<template>
+			<think>
+				<set var="dia"><star/></set>
+				<set var="mes"><star index = "2"/></set>
+				<set var="anno"><star index = "3"/></set>
+			</think>
+			<condition var="mes">
+				<li value = "4"><condition var="dia"><li value = "31">NO</li><li>YES</li></condition></li>
+				<li value = "6"><condition var="dia"><li value = "31">NO</li><li>YES</li></condition></li>
+				<li value = "9"><condition var="dia"><li value = "31">NO</li><li>YES</li></condition></li>
+				<li value = "11"><condition var="dia"><li value = "31">NO</li><li>YES</li></condition></li>
+				<li value = "2">
+					<condition var="dia">
+						<li value = "31">NO</li>
+						<li value = "30">NO</li>
+						<li value = "29">
+						<condition var="anno">
+							<li value = "2020">YES</li>
+							<li value = "2024">YES</li>
+							<li>NO</li>
+						</condition>
+						</li>
+						<li>YES</li>
+					</condition>
+				</li>
+				<li>YES</li>
+			</condition>
+		</template>
+	</category>
+	
+	<!-- Regla que cambia la palabra de posicion number(<star/>) por <star index="2"> -->
+	<category>
+	    <pattern>
+	        CHANGEITEM <set>number</set> BY * IN *
+	    </pattern>
+	    <template>
+	        <think>
+	            <set var="count"><star/></set>
+	            <set var="list"><star index="3"/></set>
+	            <set var="list_1"></set>
+	            <set var="item"><srai>TOP <get var="list"/></srai></set>
+	            <set var="list"><srai>REMAIN <get var="list"/></srai></set>
+	        </think>
+	        <condition var="count">
+	            <li><value>1</value> <get var="list_1"/> <star index="2"/> <get var="list"/></li>
+	            <li>
+	               <think>
+	                  <set var="count"><map><name>predecessor</name><get var="count"/></map></set>
+	                  <set var="list_1"><get var="list_1"/> <get var="item"/></set>
+	                  <set var="item"><srai>TOP <get var="list"/></srai></set>
+	                  <set var="list"><srai>REMAIN <get var="list"/></srai></set>
+	                  <condition var="list">
+	                      <li value="$"><set var="list"/></li>
+	                  </condition>
+	                  <condition var="item">
+	                      <li value="$"><set var="item"></set></li>
+	                  </condition>
+	                </think>
+	              <loop/>
+	            </li>
+	        </condition>
+	    </template>
+	</category>
+	
+	<!-- Regla que inserta un nuevo elemento en la posicion indicada -->
+	<category>
+	    <pattern>
+	        INSERTITEM * POS <set>number</set> IN *
+	    </pattern>
+	    <template>
+	        <think>
+	            <set var="count"><star index="2"/></set>
+	            <set var="list"><star index="3"/></set>
+	            <set var="list_1"></set>
+	            <set var="item"><srai>TOP <get var="list"/></srai></set>
+	            <set var="list"><srai>REMAIN <get var="list"/></srai></set>
+	        </think>
+	        <condition var="count">
+	            <li><value>1</value> <get var="list_1"/> <get var="item"/> <star index="1"/> <get var="list"/></li>
+	            <li>
+	               <think>
+	                  <set var="count"><map><name>predecessor</name><get var="count"/></map></set>
+	                  <set var="list_1"><get var="list_1"/> <get var="item"/></set>
+	                  <set var="item"><srai>TOP <get var="list"/></srai></set>
+	                  <set var="list"><srai>REMAIN <get var="list"/></srai></set>
+	                  <condition var="list">
+	                      <li value="$"><set var="list"/></li>
+	                  </condition>
+	                  <condition var="item">
+	                      <li value="$"><set var="item"></set></li>
+	                  </condition>
+	                </think>
+	              <loop/>
+	            </li>
+	        </condition>
+	    </template>
+	</category>
+	
+	<!-- Regla que suma un dia al indicado -->
+	<category>
+		<pattern>TOMORROW * * *</pattern>
+		<template>
+			<think>
+				<set var="dia"><star/></set>
+				<set var="mes"><star index = "2"/></set>
+				<set var="anno"><star index = "3"/></set>
+				<set var="dia"><map name="successor"><get var="dia"/></map></set>				
+			</think>
+			<condition var="dia">
+				<li value = "29">
+					<condition var="mes">
+						<li value = "2">
+							<condition var="anno">
+								<li value = "2020"></li>
+								<li value = "2024"></li>
+								<li>
+									<think>
+									<set var="dia">1</set>
+									<set var="mes"><map name="successor"><get var="mes"/></map></set>
+									</think>
+								</li>
+							</condition>
+						</li>
+					</condition>
+				</li>
+				<li value = "31">
+					<condition var="mes">
+						<li value = "1"></li>
+						<li value = "3"></li>
+						<li value = "5"></li>
+						<li value = "7"></li>
+						<li value = "8"></li>
+						<li value = "10"></li>
+						<li value = "12"></li>
+						<li>
+							<think>
+							<set var="dia">1</set>
+							<set var="mes"><map name="successor"><get var="mes"/></map></set>
+							</think>
+						</li>
+					</condition>
+				</li>
+				<li value = "32">
+					<think>
+					<set var="dia">1</set>
+					<set var="mes">1</set>
+					<set var="anno"><map name="successor"><get var="anno"/></map></set>
+					</think>
+				</li>
+			</condition>
+			<get var="dia"/>/<get var="mes"/>/<get var="anno"/>
+		</template>
+	</category>
+	
+	<!-- Regla que separa una palabra letra a letra -->
+	<category>
+	<pattern> deletrea * </pattern>
+	<template> <explode> <star/> </explode> </template>
+	</category>
+
+	<!-- Regla que quita la primera palabra de una lista de palabras -->
+	<category>
+	<pattern> resto * </pattern>
+	<template> <rest> <star/> </rest> </template>
+	</category>
+
+	<!-- Regla que elimina los espacios de una lista de palabras -->
+	<category>
+	<pattern> decode * </pattern>
+	<template> 
+	  <think>
+		<set var="palabra"></set>
+		<set var="solucion"></set>
+		<set var="tmp"><star/></set>
+		<set var="tmp"> <explode><get var="tmp"/></explode> </set>
+		<set var="caracter"><first><get var="tmp"/></first></set>
+		<set var="tmp"><rest><get var="tmp"/></rest></set>
+		<condition var="caracter">
+			<li value="NIL">
+				<set var="solucion"><get var="solucion"/> <get var="palabra"/></set>
+			</li>
+			<li value="_"> 
+				<set var="solucion"><get var="solucion"/> <get var="palabra"/></set>
+				<set var="palabra"></set>
+				<set var="caracter"><first><get var="tmp"/></first></set>
+				<set var="tmp"><rest><get var="tmp"/></rest></set>
+				<loop/>
+			</li>
+			<li>
+				<set var="palabra"><get var="palabra"/><get var="caracter"/></set>
+				<set var="caracter"><first><get var="tmp"/></first></set>
+				<set var="tmp"><rest><get var="tmp"/></rest></set>
+				<loop/>
+			</li>
+		</condition>
+	  </think>
+	<get var="solucion"/>
+	</template>
+	</category>
+
+	<!-- Regla que concatena una lista de palabras mediante un "_" -->
+	<category>
+	<pattern> code * </pattern>
+	<template> 
+	  <think>
+		<set var="tmp"><star/></set>
+		<set var="solucion"><first><get var="tmp"/></first></set>
+		<set var="tmp"><rest><get var="tmp"/></rest></set>
+		<condition var="tmp">
+			<li value="NIL">
+			</li>
+			<li>
+				<set var="solucion"><get var="solucion"/>_<first><get var="tmp"/></first></set>
+				<set var="tmp"><rest><get var="tmp"/></rest></set>
+				<loop/>
+			</li>
+		</condition>
+	  </think>
+	<get var="solucion"/>
+	</template>
+	</category>
+
+  <category>
+    <pattern> decode_fields * </pattern>
+    <template>
+      <think>
+        <set var="palabra"></set>
+        <set var="solucion"></set>
+        <set var="tmp"><star/></set>
+        <set var="tmp"> <explode><get var="tmp"/></explode> </set>
+        <set var="caracter"><first><get var="tmp"/></first></set>
+        <set var="tmp"><rest><get var="tmp"/></rest></set>
+        
+        <condition var="caracter">
+          <li value="NIL">
+            <set var="solucion"><get var="solucion"/> <get var="palabra"/></set>
+          </li>
+          <li value="@">
+            <set var="solucion"><get var="solucion"/> <get var="palabra"/></set>
+            <set var="palabra"></set>
+            <set var="caracter"><first><get var="tmp"/></first></set>
+            <set var="tmp"><rest><get var="tmp"/></rest></set>
+            <loop/>
+          </li>
+          <li>
+            <set var="palabra"><get var="palabra"/><get var="caracter"/></set>
+            <set var="caracter"><first><get var="tmp"/></first></set>
+            <set var="tmp"><rest><get var="tmp"/></rest></set>
+            <loop/>
+          </li>
+        </condition>
+      </think>
+      <get var="solucion"/>
+    </template>
+  </category>
+
+
+  <!-- FUNCIONES PROPIAS -->
+
+
+  <!-- Busca si la serie existe en Netflix o Prime y lo devuelve el nombre de la plataforma -->
+  <category>
+    <pattern>BUSCAPLATAFORMA *</pattern>
+    <template>
+      <think>
+        <!-- Se guardara 0 (no existe) o el nombre de la plataforma -->
+        <set var="p">0</set>
+
+        <!-- Se recoge la serie para comprobar si esta en algun catalogo -->
+        <set var="pedida"><star/></set>
+
+        <set var="pedida_code">
+          <srai>code <get var="pedida"/></srai>
+        </set>
+
+        <set var="lista">
+          <readset>seriesnetflix</readset>
+        </set>
+
+        <set var="busqueda">
+          <srai>FINDITEM <get var="pedida_code"/> IN <get var="lista"/></srai>
+        </set>
+
+        <condition var="busqueda">
+          <!-- No esta y por tanto se pasa a buscar en la otra lista -->
+          <li value="0">
+            <set var="lista">
+              <readset>seriesprime</readset>
+            </set>        
+
+            <set var="busqueda">
+              <srai>FINDITEM <get var="pedida_code"/> IN <get var="lista"/></srai>
+            </set>
+
+            <condition var="busqueda">
+              <!-- Si entra aqui por segunda vez, no está disponible -->
+              <li value="0">
+                <get var="p"/> <!-- Se devuelve el 0 que vale al principio -->
+              </li>
+
+              <li>
+                <set var="p">Prime</set>
+              </li>
+
+            </condition>
+            <!--Condition para la segunda busqueda -->
+          </li>
+
+          <li>
+            <set var="p">Netflix</set>
+          </li>
+
+        </condition>
+        <!-- Condition para la primera busqueda -->
+      </think>
+      <get var="p"/>
+    </template>
+  </category>
+
+  <category>
+    <pattern>BUSCARTEMPORADA <set>number</set> *</pattern>
+    <template>
+      <think>
+        <!-- Se codifica la serie por si tuviera espacios -->
+        <set var="serie_pedida">
+          <srai>code <star index="2"/></srai>
+        </set>
+        <!-- Cojo las claves asociadas al mapa de la serie -->
+        <set var="claves">
+          <readkeys><get var="serie_pedida"/></readkeys>
+        </set>
+
+        <set var="tempX">temporada<star index="1"/></set>
+
+        <set var="existe">
+          <srai>FINDITEM <get var="tempX"/> IN <get var="claves"/></srai>
+        </set>
+      </think>
+      <get var="existe"/>
+    </template>
+  </category>
+
+  <category>
+    <pattern>BUSCARTEMPORADACAPITULO * *</pattern>
+    <template>
+      <think>
+        <!-- Parametro 1, capitulo a buscar -->
+        <set var="nom_capitulo"><srai>code <star index="1"/></srai></set>
+        <!-- Parametro 2, serie donde buscar -->
+        <set var="serie_busqueda"><srai>code <star index="2"/></srai></set>
+        
+        <set var="temp_totales">
+          <srai>CONTARTEMPORADAS <get var="serie_busqueda"/></srai>
+        </set>
+
+        <set var="contador">0</set>
+        <set var="temp_x">1</set>
+        <set var="exacta">-1</set>
+        <set var="tempo">temporada<get var="temp_x"/></set>
+        <set var="existe"></set>
+
+        <condition var="contador">
+          <li><value><get var="temp_totales"/></value></li>
+
+          <li>
+            <set var="caps_temporada">
+              <map><name><get var="serie_busqueda"/></name><get var="tempo"/></map>
+            </set>
+
+            <set var="existe">
+              <srai>FINDITEM <get var="nom_capitulo"/> IN <srai>decode_fields <get var="caps_temporada"/></srai></srai>
+            </set>
+
+            <condition var="existe">
+              <li value="0"></li>
+
+              <li>
+                <set var="exacta"><get var="temp_x"/></set>
+              </li>
+            </condition>
+
+            <set var="temp_x">
+              <map name="successor"><get var="temp_x"/></map>
+            </set>
+
+            <set var="tempo">temporada<get var="temp_x"/></set>
+
+            <set var="contador">
+              <map name="successor"><get var="contador"/></map>
+            </set>
+
+           <loop/> 
+
+          </li>
+
+        </condition>
+
+      </think>
+      <get var="exacta"/>
+
+    </template>
+
+  </category>
+
+  <!-- Numero del capitulo en la temporada -->
+  <category>
+    <pattern>NUMEROCAPITULO * * </pattern>
+    <template>
+      <think>
+        <!-- Parametro 1, capitulo a buscar -->
+        <!-- Parametro 2, serie donde buscar -->
+        
+        <set var="su_temporada">
+          <srai>BUSCARTEMPORADACAPITULO <star index="1"/> <star index="2"/></srai>
+        </set>
+
+        <set var="n_capitulo">-1</set>
+
+        <condition var="su_temporada">
+          <li value="-1"></li>
+
+          <li>
+            <set var="nom_capitulo"><srai>code <star index="1"/></srai></set>
+            <set var="serie_busqueda"><srai>code <star index="2"/></srai></set>
+            <set var="su_temporada">temporada<get var="su_temporada"/></set>
+            
+            <set var="caps_temporada">
+              <srai>decode_fields <map><name><get var="serie_busqueda"/></name><get var="su_temporada"/></map></srai>
+            </set>
+
+            <set var="n_capitulo">
+              <srai>FINDITEM <get var="nom_capitulo"/> IN <get var="caps_temporada"/></srai>
+            </set>
+
+            <condition var="n_capitulo">
+              <li value="1"></li>
+
+              <li>
+                <set var="n_capitulo">0</set>
+                <set var="contador">0</set>
+                <set var="posicion">
+                  <srai>FINDITEM <get var="nom_capitulo"/> IN <get var="caps_temporada"/></srai>
+                </set>
+                <!-- Se aumenta uno porque el contador aumenta de 2 en 2 para saltar la duracion -->
+                <set var="posicion">
+                  <map name="successor"><get var="posicion"/></map>
+                </set>
+                
+                <condition var="contador">
+                  <li><value><get var="posicion"/></value></li>
+
+                  <li>
+                    <set var="n_capitulo">
+                      <map name="successor"><get var="n_capitulo"/></map>
+                    </set>
+
+                    <set var="contador">
+                      <map name="successor"><get var="contador"/></map>
+                    </set>
+                    <set var="contador">
+                      <map name="successor"><get var="contador"/></map>
+                    </set>
+                    <loop/>
+                  </li>
+
+                </condition>
+
+              </li>
+
+            </condition>
+
+          </li>
+
+        </condition>
+
+      </think>
+      <get var="n_capitulo"/>
+
+    </template>
+  </category>
+
+  <category>
+    <pattern>ULTIMOCAPITULO <set>number</set> <set>number</set> * </pattern>
+    <template>
+      <think>
+        <set var="nCapitulo"><star index="1"/></set>
+
+        <set var="nTemp"><star index="2"/></set>
+
+        <set var="ser">
+          <srai>code <star index="3"/></srai>
+        </set>
+
+        <set var="totales">
+          <srai>TOTALCAPITULOSTEMPORADA <get var="nTemp"/> <get var="ser"/></srai>
+        </set>
+        
+        <set var="ulti">0</set>
+
+        <!-- si es igual, ulti = 1, era el ultimo; -->
+        <condition var="totales">
+          <li><value><get var="nCapitulo"/></value>
+            <set var="ulti">1</set>
+          </li>
+
+        </condition>
+      </think>
+      
+      <get var="ulti"/>
+    </template>
+  </category>
+
+  <category>
+    <pattern>ULTIMATEMPORADA <set>number</set> * </pattern>
+    <template>
+      <think>
+
+        <set var="nTemp"><star index="1"/></set>
+
+        <set var="ser">
+          <srai>code <star index="2"/></srai>
+        </set>
+
+        <set var="totales">
+          <srai>CONTARTEMPORADAS <get var="ser"/></srai>
+        </set>
+        
+        <set var="ulti">0</set>
+
+        <!-- si es igual, ulti = 1, era el ultimo; -->
+        <condition var="totales">
+          <li><value><get var="nTemp"/></value>
+            <set var="ulti">1</set>
+          </li>
+
+        </condition>
+      </think>
+      
+      <get var="ulti"/>
+    </template>
+  </category>
+
+  <category>
+    <pattern>CONTARTEMPORADAS *</pattern>
+    <template>
+      <think>
+        <!-- Se codifica la serie por si tuviera espacios -->
+        <set var="serie_pedida">
+          <srai>code <star/></srai>
+        </set>
+        <!-- Cojo las claves asociadas al mapa de la serie -->
+        <set var="claves">
+          <readkeys><get var="serie_pedida"/></readkeys>
+        </set>
+        <!-- Para contar las temporadas, la primera siempre sera la 1 -->
+        <set var="indiceTemporada">1</set>
+        <set var="tempX">temporada<get var="indiceTemporada"/></set>
+        <set var="numTemporadas">0</set>
+        <set var="totalKeys">
+          <srai>COUNT <get var="claves"/></srai>
+        </set>
+
+        <set var="contador">1</set>
+      </think>
+
+      <!-- Bucle CONTADOR -->
+      <condition var="contador">
+        <li><value><get var="totalKeys"/></value></li>
+
+        <li>
+          <think>
+            <set var="existe">
+              <srai>FINDITEM <get var="tempX"/> IN <get var="claves"/></srai>
+            </set>
+          </think>
+
+          <condition var="existe">
+            <!-- Compara si la temporada existe -->
+            <li value="0"></li>
+
+            <li>
+              <!-- Si existe aumenta la temporada que se busca -->
+              <think>
+                <set var="numTemporadas">
+                  <map name="successor"><get var="numTemporadas"/></map>
+                </set>
+                <set var="indiceTemporada">
+                  <map name="successor"><get var="indiceTemporada"/></map>
+                </set>
+                <set var="tempX">temporada<get var="indiceTemporada"/></set>
+              </think>
+            </li>
+
+          </condition>
+          <!-- CONDITION EXISTE -->
+          <think>
+            <set var="contador">
+              <map name="successor"><get var="contador"/></map>
+            </set>
+          </think>
+          <loop/>
+        </li>
+      
+      </condition>
+      <!-- CONDITION CONTADOR -->
+
+      <get var="numTemporadas"/>
+    </template>
+  </category>
+
+  <category>
+    <pattern>TOTALCAPITULOSTEMPORADA <set>number</set> *</pattern>
+    <template>
+      <think>
+        <!-- Se codifica la serie por si tuviera espacios -->
+        <set var="serie_pedida">
+          <srai>code <star index="2"/></srai>
+        </set>
+        <!-- Cojo las claves asociadas al mapa de la serie -->
+        <set var="claves">
+          <readkeys><get var="serie_pedida"/></readkeys>
+        </set>
+
+        <set var="tempX">temporada<star index="1"/></set>
+
+        <set var="existe">
+          <srai>FINDITEM <get var="tempX"/> IN <get var="claves"/></srai>
+        </set>
+
+        <set var="total">-1</set>
+      </think>
+
+      <condition var="existe">
+        <li value="0">
+         <get var="total"/>
+        </li>
+
+        <!-- Entonces la temporada existe -->
+        <li>
+          <think>
+            <!-- Se listan todos los episodios -->
+            <set var="nEpisodios">
+              <map><name><get var="serie_pedida"/></name><get var="tempX"/></map>
+            </set>
+
+            <!-- Elimino los @ para que queden separados por espacios -->
+            <set var="nEpisodios">
+              <srai>decode_fields <get var="nEpisodios"/></srai>
+            </set>
+
+            <!-- Se hace un COUNT a la variable. Cada episodio tiene asociada una duracion -->
+            <set var="numeroMaximo">
+              <srai>COUNT <get var="nEpisodios"/></srai>
+            </set>
+            <!-- Se le hace un incremento para que se salga en el impar siguiente al par de la ultima duracion -->
+            <set var="numeroMaximo">
+              <map name="successor"><get var="numeroMaximo"/></map>
+            </set>
+
+            <!-- Contador para el bucle-->
+            <set var="inicio">1</set>
+            
+            <!-- Donde se iran contando el numero de episodios -->
+            <set var="total">0</set>
+
+            <condition var="inicio">
+              <li><value><get var="numeroMaximo"/></value></li>
+
+              <li>
+
+                <set var="total">
+                  <map name="successor"><get var="total"/></map>
+                </set>
+
+                <!-- Se hacen dos sumas al contador para saltar la duracion y no contarla. Es una forma de dividir -->
+                <set var="inicio">
+                  <map name="successor"><get var="inicio"/></map>
+                </set>
+                <set var="inicio">
+                  <map name="successor"><get var="inicio"/></map>
+                </set>
+
+                <!-- El loop va antes del cierre del li que produce el bucle -->
+                <loop/>
+              </li>
+
+            </condition>
+            <!-- CONDITION BUCLE -->
+          
+          </think>
+
+          <get var="total"/>
+        </li>
+
+      </condition>
+      <!-- CONDITION EXISTE -->
+    </template>
+  </category>
+
+  <!-- FUNCION SUMA x + a -->
+  <category>
+    <pattern>SUMA <set>number</set> <set>number</set></pattern>
+    <template>
+      <think>
+        <!-- por ejemplo, se toma el primer valor como el inicio -->
+        <set var="suma"><star index="1"/></set>
+
+        <set var="fin"><star index="2"/></set>
+        <!-- El contador llegara hasta el final que será el otro numero recogido -->
+        <set var="contador">0</set>
+      </think>
+
+      <condition var="contador">
+        <li><value><get var="fin"/></value></li>
+
+        <li>
+          <think>
+            <!-- Aumentara de uno en uno el valor hasta llegar contador a fin -->
+            <set var="suma">
+              <map name="successor"><get var="suma"/></map>
+            </set>
+
+            <set var="contador">
+              <map name="successor"><get var="contador"/></map>
+            </set>
+          </think>
+          <loop/>
+        </li>
+
+      </condition>
+
+      <get var="suma"/>
+
+    </template>
+  </category>
+
+  <!-- FUNCION RESTA, x - a -->
+  <category>
+    <pattern>RESTA <set>number</set> <set>number</set></pattern>
+    <template>
+      <think>
+        <!-- Numero al que le será restado -->
+        <set var="resta"><star index="1"/></set>
+
+        <set var="fin"><star index="2"/></set>
+
+        <!-- El contador llegara hasta el final que será el otro numero recogido -->
+        <set var="contador">0</set>
+      </think>
+
+      <condition var="contador">
+        <li><value><get var="fin"/></value></li>
+
+        <li>
+          <think>
+            <!-- Aumentara de uno en uno el valor hasta llegar contador a fin -->
+            <set var="resta">
+              <map name="predecessor"><get var="resta"/></map>
+            </set>
+
+            <set var="contador">
+              <map name="successor"><get var="contador"/></map>
+            </set>
+          </think>
+          <loop/>
+        </li>
+
+      </condition>
+
+      <get var="resta"/>
+
+    </template>
+  </category>
+
+  <category>
+    <pattern>CONTARSINARROBAS *</pattern>
+    <template>
+      <think>
+        <set var="listaA"><star/></set>
+
+        <!-- Se eliminan los @ -->
+        <set var="listaA">
+          <srai>decode_fields <get var="listaA"/></srai>
+        </set>
+
+        <set var="totalItem">
+          <srai>COUNT <get var="listaA"/></srai>
+        </set>
+      </think>
+
+      <get var="totalItem"/>
+    </template>
+  </category>
+
+  <!-- Comprueba si al avanzar x tiempo, completa la duracion del capitulo -->
+  <category>
+    <pattern>DURACIONCOMPLETA <set>number</set> <set>number</set> <set>number</set></pattern>
+    <template>
+      <think>
+
+        <!-- Valor del tiempo por el que va el episodio -->
+        <set var="actual"><star index="1"/></set>
+        <!-- Valor que se desea simular en el avance (Sirve como final del bucle) -->
+        <set var="avance"><star index="2"/></set>
+        <!-- Duracion completa del capitulo -->
+        <set var="completa"><star index="3"/></set>
+
+        <set var="contador">0</set>
+
+        <!-- La variable valdra 1 si sobrepasa la duracion, 0 si no la sobrepasa, 2 si ha llegado justo -->
+        <set var="sobrepasar">0</set>
+
+        <condition var="contador">
+          <!-- Cuando llegue al final, para, en otro caso sigue dando vueltas -->
+          <li><value><get var="avance"/></value></li>
+
+          <!-- Por defecto aumenta uno el contador -->
+          <li>
+            <think>
+              <!-- En la primera vuelta ya ha debido pasar un minuto, por eso se aumenta antes -->
+              <set var="contador">
+                <map name="successor"><get var="contador"/></map>
+              </set>
+
+              <set var="actual">
+                <map name="successor"><get var="actual"/></map>
+              </set>
+
+            </think>
+            <condition var="actual">
+              <!-- Se ha pasado de la duracion total -->
+              <li><value><get var="completa"/></value>
+                <think>
+                  <set var="sobrepasar">1</set>
+                </think>
+              </li>
+            </condition>
+            <!-- CONDITION ACTUAL -->
+            
+            <loop/>
+          </li>
+
+        </condition>
+        <!-- CONDITION CONTADOR -->
+
+      </think>
+
+      <!-- 1 Se ha completado; 0 No se ha completado -->
+      <get var="sobrepasar"/>
+      
+    </template>
+
+  </category>
+
+  <!-- Comprueba que llega a cero al retroceder -->
+  <category>
+    <pattern>DURACIONCERO <set>number</set> <set>number</set></pattern>
+    <template>
+      <think>
+
+        <!-- Valor del tiempo por el que va el episodio -->
+        <set var="actual"><star index="1"/></set>
+        <!-- Valor que se desea simular en el retroceso (Sirve como final del bucle) -->
+        <set var="retroceso"><star index="2"/></set>
+
+        <set var="contador">0</set>
+
+        <!-- La variable valdra 1 si llega a 0 la duracion, 0 si no ha llegado al principio -->
+        <set var="llega_cero">0</set>
+
+        <condition var="contador">
+          <!-- Cuando llegue al final, para, en otro caso sigue dando vueltas -->
+          <li><value><get var="retroceso"/></value></li>
+
+          <!-- Por defecto aumenta uno el contador -->
+          <li>
+            <think>
+              <!-- En la primera vuelta ya ha debido pasar un minuto, por eso se aumenta antes -->
+              <set var="contador">
+                <map name="successor"><get var="contador"/></map>
+              </set>
+
+              <set var="actual">
+                <map name="predecessor"><get var="actual"/></map>
+              </set>
+
+            </think>
+            <condition var="actual">
+              <!-- Ha llegado a cero -->
+              <li><value>0</value>
+                <think>
+                  <set var="llega_cero">1</set>
+                </think>
+              </li>
+            </condition>
+            <!-- CONDITION ACTUAL -->
+
+            
+            <loop/>
+          </li>
+
+        </condition>
+        <!-- CONDITION CONTADOR -->
+
+      </think>
+
+      <!-- 1 Ha llegado a cero; 0 No volvió al principio -->
+      <get var="llega_cero"/>
+      
+    </template>
+
+  </category>
+
+  <category>
+    <pattern>OBTENERDURACION * * </pattern>
+    <template>
+      <think>
+        <!-- Parametro 1, episodio -->
+        <set var="epi"><srai>code <star index="1"/></srai></set>
+        <!-- Parametro 2, serie -->
+        <set var="ser"><srai>code <star index="2"/></srai></set>
+
+        <!-- Se suponen capitulos y series correctas -->
+        <set var="n_cap">
+          <srai>NUMEROCAPITULO <get var="epi"/> <get var="ser"/></srai>
+        </set>
+
+        <set var="n_temp">
+          <srai>BUSCARTEMPORADACAPITULO <get var="epi"/> <get var="ser"/></srai>
+        </set>
+
+        <set var="x_tem">temporada<get var="n_temp"/></set>
+
+        <!-- Para calcular su posicion a partir del numero del episodio -->
+        <!-- Se multiplica x2 el numero del episodio y se resta 1 -->
+        <!-- Si me devuelve 3 (los episodios son impar), su duracion es 3+3 -->
+        <set var="n_cap">
+          <srai>SUMA <get var="n_cap"/> <get var="n_cap"/></srai>
+        </set>
+
+        <set var="caps_dur">
+          <map><name><get var="ser"/></name><get var="x_tem"/></map>
+        </set>
+        
+        <set var="caps_dur">
+          <srai>decode_fields <get var="caps_dur"/></srai>
+        </set>
+
+        <set var="duracion_obtenida">
+          <srai>SELECTITEM <get var="n_cap"/> IN <get var="caps_dur"/></srai>
+        </set>
+
+      </think>
+      <get var="duracion_obtenida"/>
+
+    </template>
+  </category>
+
+  <!-- Comprueba si el usuario ve dicha serie -->
+  <category>
+    <pattern>USUARIO * VIENDO * </pattern>
+    <template>
+      <think>
+        <!-- Coge el usuario a comprobar -->
+        <!-- Se codifica por si en algun futuro hay un usuario con nombre complejo -->
+        <set var="us">
+          <srai>code <star index="1"/></srai>
+        </set>
+
+        <!-- Coge la serie y la codifica -->
+        <set var="se">
+          <srai>code <star index="2"/></srai>
+        </set>
+
+        <set var="viendo">
+          <readkeys><get var="us"/></readkeys>
+        </set>
+      
+        <set var="busq">
+          <srai>FINDITEM <get var="se"/> IN <get var="viendo"/></srai>
+        </set>
+      </think>
+
+      <get var="busq"/>
+
+    </template>
+  </category>
+
+
+  <category>
+    <pattern>COMPARTIDAS</pattern>
+    <template>
+      <think>
+        <!-- Se cogen las series de Carlos -->
+        <set var="series_carlos">
+          <readkeys>carlos</readkeys>
+        </set>
+
+        <!-- se cogen las series de Marta -->
+        <set var="series_marta">
+          <readkeys>marta</readkeys>
+        </set>
+
+        <set var="compartidas"/>
+
+        <set var="total_carlos">
+          <srai>COUNT <get var="series_carlos"/></srai>
+        </set>
+
+        <set var="inicio">0</set>
+
+        <!-- Por ejemplo se toman de referencia las de Carlos. No es necesario hacer la comprobacion con ambas listas -->
+        <!-- Pues si ya con las de Carlos se ha comprobado que Fleabag (por ejemplo) no la comparten, al mirar las de marta no las van a compartir tampoco -->
+        <condition var="inicio">
+          <!-- Final del loop -->
+          <li><value><get var="total_carlos"/></value></li>
+
+          <li>
+            <set var="inicio">
+              <map name="successor"><get var="inicio"/></map>
+            </set>
+
+            <set var="s">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="series_carlos"/></srai>
+            </set>
+
+            <set var="comparte">
+              <srai>FINDITEM <get var="s"/> IN <get var="series_marta"/></srai>
+            </set>
+
+            <condition var="comparte">
+              <li value="0"></li>
+
+              <!-- Si la comparten se comprueba el numero de capitulo que estan viendo, si es el mismo se añade a la lista de compartidas -->
+              <li>
+                <set var="capitulo_carlos">
+                  <map name="carlos"><get var="s"/></map>
+                </set>
+
+                <set var="capitulo_carlos">
+                  <srai> SELECTITEM 1 IN <srai>decode_fields <get var="capitulo_carlos"/></srai></srai>
+                </set>
+
+                <set var="capitulo_marta">
+                  <map name="marta"><get var="s"/></map>
+                </set>
+
+                <set var="capitulo_marta">
+                  <srai> SELECTITEM 1 IN <srai>decode_fields <get var="capitulo_carlos"/></srai></srai>
+                </set>
+                
+                <set var="s">
+                  <srai>MINUSCULA <get var="s"/></srai>
+                </set>
+
+                <!-- Nombre, serie -->
+                <set var="temp_cap_carlos">
+                  <srai>BUSCARTEMPORADACAPITULO <get var="capitulo_carlos"/> <get var="s"/></srai>
+                </set>
+
+                <set var="temp_cap_marta">
+                  <srai>BUSCARTEMPORADACAPITULO <get var="capitulo_marta"/> <get var="s"/></srai>
+                </set>
+
+                <condition var="temp_cap_marta">
+                  <!-- Si la temporada no es la misma se acaba -->
+                  <li><value><get var="temp_cap_carlos"/></value>
+
+                    <!-- Nombre del capitulo, serie -->
+                    <set var="num_cap_carlos">
+                      <srai>NUMEROCAPITULO <get var="capitulo_carlos"/> <get var="s"/></srai>
+                    </set>
+
+                    <set var="num_cap_marta">
+                      <srai>NUMEROCAPITULO <get var="capitulo_marta"/> <get var="s"/></srai>
+                    </set>
+
+                    <condition var="num_cap_carlos">
+                      <li><value><get var="num_cap_marta"/></value>
+                        introduzco
+                        <set var="compartidas">
+                          <get var="compartidas"/> <get var="s"/>
+                        </set>
+
+                      </li>
+
+                    </condition>
+                    <!-- CONDITION NUMERO CAPITULO -->
+
+                  </li>
+
+                </condition>
+                <!-- CONDITION NUMERO TEMPORADA -->
+
+              </li>
+            </condition>
+            <!-- CONDITION COMPARTE -->
+
+            <loop/>
+          </li>
+        </condition>
+      </think>
+      
+      <get var="compartidas"/>
+      
+    </template>
+  </category>
+
+  <category>
+    <pattern>MINUSCULA * </pattern>
+    <template>
+    <think>
+      <set var="palabra">
+        <star/>
+      </set>
+
+      <set var="palabra">
+        <srai>DELETREA <get var="palabra"/></srai>
+      </set>
+
+      <set var="total_letras">
+        <srai>COUNT <get var="palabra"/></srai>
+      </set>
+
+      <!-- Se guardara la palabra en minuscula -->
+      <set var="minus"></set>
+
+      <!-- Contador para pasar por todos los caracteres -->
+      <set var="inicio">0</set>
+
+      <set var="caracter"></set>
+
+      <condition var="inicio">
+        <li><value><get var="total_letras"/></value></li>
+
+        <li>
+          <!-- Primero se avanza para luego coger dicha posicion de la lista de letras -->
+          <set var="inicio">
+            <map name="successor"><get var="inicio"/></map>
+          </set>
+
+          <set var="caracter">
+            <srai>SELECTITEM <get var="inicio"/> IN <get var="palabra"/></srai>
+          </set>
+
+          <set var="caracter">
+            <map name="mayusculas"><get var="caracter"/></map>
+          </set>
+
+          <set var="minus">
+            <get var="minus"/><get var="caracter"/>
+          </set>
+
+          <loop/>
+        </li>
+
+      </condition>
+    </think>
+    <get var="minus"/>
+    </template>
+
+  </category>
+
+</aiml>

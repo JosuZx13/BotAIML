@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<!-- VARIABLES NAME (GLOBALES -->
+
+
+<!-- serieReproducir -->
+<!-- subtitulosActivados -->
+<!-- idiomaActual -->
+<!-- subtituloActual -->
+<!-- minutoActual -->
+<!-- duracionTotal -->
+<!-- usuarioActual -->
+<!-- visualizado -->
+<!-- reproduciendo -->
+<!-- tiempo -->
+
+
+<!-- VARIABLES NAME (GLOBALES) -->
+
+
+<category>
+  <pattern>Ha llegado * </pattern>
+  <template>
+    <think>
+      <!-- Se pausa la reproduccion -->
+      <set name="reproduciendo">0</set>
+      <set var="serie_code"><srai><get name="serieReproducir"/></srai></set>
+    </think>
+
+  </template>
+</category>
+
+
+</aiml>

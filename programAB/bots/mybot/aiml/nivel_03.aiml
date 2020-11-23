@@ -1,0 +1,1302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<!-- VARIABLES NAME (GLOBALES -->
+
+
+<!-- serieReproducir -->
+<!-- subtitulosActivados -->
+<!-- idiomaActual -->
+<!-- subtituloActual -->
+<!-- minutoActual -->
+<!-- duracionTotal -->
+<!-- usuarioActual -->
+<!-- visualizado -->
+<!-- reproduciendo -->
+<!-- tiempo -->
+
+
+<!-- VARIABLES NAME (GLOBALES) -->
+
+
+
+<!-- REPRODUCIR UNA SERIE -->
+<category>
+  <pattern>[Visualiza Reproduce] la serie *</pattern>
+  <template>
+    <think>
+
+      <set name="topic">reproduce</set>
+
+      <set name="serieReproducir"><star/></set>
+
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get name="serieReproducir"/></srai>
+      </set>
+
+    </think>
+
+    <!-- Habra que comprobar en primer lugar que la serie existe en algun catálogo -->
+    <condition var="busqueda">
+
+      <li value="0">
+        <think>
+          <set name="topic">elegirOtra</set>
+        </think>
+        <get name="serieReproducir"/> no esta disponible en ningun catalogo. Desea elegir otra?
+      </li>
+
+      <li>
+        Eres Carlos o Marta, o sois ambos?
+        <think>
+          <set name="topic">usuario</set>
+        </think>
+      </li>
+    </condition> 
+
+  </template>
+
+</category>
+
+<!-- Este TOPIC será el "visualizado" de la reproducción. Da preferencia a estas preguntas -->
+<topic name="reproduce">
+
+
+<!-- REPRODUCIR EL CAPITULO ACTUAL A PARTIR DE UN MINUTO CONCRETO -->
+<category>
+  <pattern>reproduce el capitulo a partir del minuto <set>number</set></pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        El reproductor esta apagado
+
+      </li>
+
+      <li value="1">
+        <condition name="reproduciendo">
+          <li value="0">
+            No hay ninguna serie siendo reproducida
+          </li>
+
+          <li value="1">
+
+            <think>
+              <set name="minutoActual"><star/></set>
+              <set var="serie_code">
+                <srai>code <get name="serieReproducir"/></srai>
+              </set>
+
+              <set var="pareja_valores">
+                <get name="capituloActual"/>@<get name="minutoActual"/>
+              </set>
+
+              <condition name="usuarioActual">
+                <li value="ambos">
+                  <modifymap>
+                    <name>carlos</name>
+                    <key><get var="serie_code"/></key>
+                    <value><get var="pareja_valores"/></value>
+                  </modifymap>
+
+                  <modifymap>
+                    <name>marta</name>
+                    <key><get var="serie_code"/></key>
+                    <value><get var="pareja_valores"/></value>
+                  </modifymap>
+
+                </li>
+
+                <li>
+                  <modifymap>
+                    <name><get name="usuarioActual"/></name>
+                    <key><get var="serie_code"/></key>
+                    <value><get var="pareja_valores"/></value>
+                  </modifymap>
+                </li>
+
+              </condition>
+
+              <set var="capituloActual_decode">
+                <srai>decode <get name="capituloActual"/></srai>
+              </set>
+
+            </think>
+            Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+
+          </li>
+
+        </condition>
+
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+
+<!-- SIMULAR LA REPRODUCCION X MINUTOS -->
+
+<category>
+  <pattern>Simula <set>number</set> (minutos)</pattern>
+  <template>
+
+    <condition name="visualizado">
+      <li value="0">
+        El reproductor esta apagado
+      </li>
+
+      <li value="1">
+        <condition name="reproduciendo">
+          <li value="0">
+            No se esta reproduciendo ninguna serie, o esta detenida
+          </li>
+          
+          <li value="1">
+            <think>
+              <srai>SIMUL <star/></srai>
+
+              <set var="completa">
+                <srai>DURACIONCOMPLETA <get name="minutoActual"/> <star/> <get name="duracionTotal"/></srai>
+              </set>
+            </think>
+
+            <condition var="completa">
+          
+              <!-- 0, no se ha completado el capitulo -->
+              <li value="0">
+                <think>
+                  <set name="minutoActual">
+                    <srai>SUMA <get name="minutoActual"/> <star/></srai>
+                  </set>
+
+                  <set var="serie_code">
+                    <srai>code <get name="serieReproducir"/></srai>
+                  </set>
+
+                  <set var="pareja_valores">
+                    <get name="capituloActual"/>@<get name="minutoActual"/>
+                  </set>
+                  
+                  <condition name="usuarioActual">
+                    <li value="ambos">
+                      <modifymap>
+                        <name>carlos</name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+
+                      <modifymap>
+                        <name>marta</name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+
+                    </li>
+
+                    <li>
+                      <modifymap>
+                        <name><get name="usuarioActual"/></name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+                    </li>
+
+                  </condition>
+
+                  <set var="capituloActual_decode">
+                    <srai>decode <get name="capituloActual"/></srai>
+                  </set>
+                  
+                </think>
+
+                Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+
+              </li>
+
+              <li value="1">
+                <think>
+
+                  <!-- El siguiente capitulo comenzara en dicho minuto -->
+                  <set name="minutoActual">0</set>
+
+                  <!-- Como la temporada a la que pertenece -->
+                  <set var="n">
+                    <srai>NUMEROCAPITULO <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                  </set>
+
+                  <set var="t">
+                    <srai>BUSCARTEMPORADACAPITULO <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                  </set>
+
+                  <!-- Recibe capitulo, temporada, serie -->
+                  <set var="ultimo_capitulo">
+                    <srai>ULTIMOCAPITULO <get var="n"/> <get var="t"/> <get name="serieReproducir"/></srai>
+                  </set>
+                </think>
+
+                <condition var="ultimo_capitulo">
+                  <li value="0">
+                    <think>
+                      <!-- Se elige el siguiente, y para ello primero se avanza en uno -->
+                      <set var="n">
+                        <map name="successor"><get var="n"/></map>
+                      </set>
+
+                      <!-- Se multiplica por 2 -->
+                      <set var="n">
+                        <srai>SUMA <get var="n"/> <get var="n"/></srai>
+                      </set>
+
+                      <!-- Se le resta 1 y ya se obtiene su posicion en el total de capitulos -->
+                      <set var="n">
+                        <map name="predecessor"><get var="n"/></map>
+                      </set>
+
+                      <set var="t">temporada<get var="t"/></set>
+
+                      <set var="serie_code">
+                        <srai>code <get name="serieReproducir"/></srai>
+                      </set>
+
+                      <set var="nuevos_caps">
+                        <map><name><get var="serie_code"/></name><get var="t"/></map>
+                      </set>
+
+                      <set var="nuevos_caps">
+                        <srai>decode_fields <get var="nuevos_caps"/></srai>
+                      </set>
+
+                      <set name="capituloActual">
+                        <srai>SELECTITEM <get var="n"/> IN <get var="nuevos_caps"/></srai>
+                      </set>
+
+                      <set name="duracionTotal">
+                        <srai>OBTENERDURACION <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                      </set>
+
+                      <set var="capituloActual_decode">
+                        <srai>decode <get name="capituloActual"/></srai>
+                      </set>
+
+                      <set var="pareja_valores"><get name="capituloActual"/>@<get name="minutoActual"/></set>
+
+                      <condition name="usuarioActual">
+                        <li value="ambos">
+                          <modifymap>
+                            <name>carlos</name>
+                            <key><get var="serie_code"/></key>
+                            <value><get var="pareja_valores"/></value>
+                          </modifymap>
+
+                          <modifymap>
+                            <name>marta</name>
+                            <key><get var="serie_code"/></key>
+                            <value><get var="pareja_valores"/></value>
+                          </modifymap>
+
+                        </li>
+
+                        <li>
+                          <modifymap>
+                            <name><get name="usuarioActual"/></name>
+                            <key><get var="serie_code"/></key>
+                            <value><get var="pareja_valores"/></value>
+                          </modifymap>
+                        </li>
+
+                      </condition>
+
+                    </think>
+                    Pasando al siguiente capitulo.
+                    Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+                    
+                  </li>
+
+                  <li>
+                    <set var="ultima_temporada">
+                      <srai>ULTIMATEMPORADA <get var="t"/> <get name="serieReproducir"/></srai>
+                    </set>
+
+                    <condition var="ultima_temporada">
+                      <li value="0">
+                        <think>
+                          <set var="t">
+                            <map name="successor"><get var="t"/></map>
+                          </set>
+
+                          <set var="t">temporada<get var="t"/></set>
+
+                          <set var="serie_code">
+                            <srai>code <get name="serieReproducir"/></srai>
+                          </set>
+
+                          <set var="nuevos_caps">
+                            <map><name><get var="serie_code"/></name><get var="t"/></map>
+                          </set>
+
+                          <set var="nuevos_caps">
+                            <srai>decode_fields <get var="nuevos_caps"/></srai>
+                          </set>
+
+                          <set name="capituloActual">
+                            <srai>SELECTITEM 1 IN <get var="nuevos_caps"/></srai>
+                          </set>
+
+                          <set name="duracionTotal">
+                            <srai>OBTENERDURACION <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                          </set>
+
+                          <set var="capituloActual_decode">
+                            <srai>decode <get name="capituloActual"/></srai>
+                          </set>
+
+                          <set var="pareja_valores"><get name="capituloActual"/>@<get name="minutoActual"/></set>
+
+                          <condition name="usuarioActual">
+                            <li value="ambos">
+                              <modifymap>
+                                <name>carlos</name>
+                                <key><get var="serie_code"/></key>
+                                <value><get var="pareja_valores"/></value>
+                              </modifymap>
+
+                              <modifymap>
+                                <name>marta</name>
+                                <key><get var="serie_code"/></key>
+                                <value><get var="pareja_valores"/></value>
+                              </modifymap>
+
+                            </li>
+
+                            <li>
+                              <modifymap>
+                                <name><get name="usuarioActual"/></name>
+                                <key><get var="serie_code"/></key>
+                                <value><get var="pareja_valores"/></value>
+                              </modifymap>
+                            </li>
+
+                          </condition>
+
+                        </think>
+                        Temporada finalizada. Pasando a la siguiente temporada.
+                        Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+                      </li>
+
+                      <li value="1">
+
+                        <think>
+                          <set var="user_code">
+                            <srai>code <get name="usuarioActual"/></srai>
+                          </set>
+
+                          <set var="serie_code">
+                            <srai>code <get name="serieReproducir"/></srai>
+                          </set>
+
+                          <removefrommap>
+                            <name><get var="user_code"/></name>
+                            <key><get var="serie_code"/></key>
+                          </removefrommap>
+                        </think>
+                        Ha finalizado la serie
+
+                      </li>
+                    </condition>
+
+                  </li>
+
+                </condition>
+              </li>
+
+            </condition>
+            
+          </li>
+        </condition>
+
+      </li>
+    </condition>   
+
+  </template>
+
+
+</category>
+
+<!-- RETROCEDER EL CAPITULO -->
+<category>
+  <pattern>Retrocede <set>number</set> (minutos) </pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        El reproductor esta apagado
+      </li>
+
+      <li value="1">
+        <condition name="reproduciendo">
+          <li value="0">
+            No hay ninguna serie siendo reproducida o esta en pausa
+          </li>
+
+          <li value="1">
+
+            <condition name="minutoActual">
+              <li value="0">
+                El minuto actual en la serie esta a 0 ya
+              </li>
+
+              <li>
+                <think>
+                  <set var="receso"><star/></set>
+
+                    <set var="cero">
+                      <srai>DURACIONCERO <get name="minutoActual"/> <get var="receso"/></srai>
+                    </set>
+                </think>
+
+                <!-- si cero == 1, ha llegado a 0; cero == 0, no ha llegado (ironico) -->
+                <condition var="cero">
+                  <li value="1">
+                    <think>
+                      <set name="minutoActual">0</set>
+                      
+                    </think>
+                  </li>
+
+                  <!-- Si no pasa por 0, es decir, no llega, se hace una resta ya ya -->
+                  <li>
+                    <think>
+                      <set name="minutoActual">
+                        <srai>RESTA <get name="minutoActual"/> <get var="receso"/></srai>
+                      </set>
+                    </think>
+                  </li>
+                </condition>
+                
+                <think>
+                  <set var="serie_code">
+                    <srai>code <get name="serieReproducir"/></srai>
+                  </set>
+
+                  <set var="pareja_valores">
+                    <get name="capituloActual"/>@<get name="minutoActual"/>
+                  </set>
+
+                  <condition name="usuarioActual">
+                    <li value="ambos">
+                      <modifymap>
+                        <name>carlos</name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+
+                      <modifymap>
+                        <name>marta</name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+
+                    </li>
+
+                    <li>
+                      <modifymap>
+                        <name><get name="usuarioActual"/></name>
+                        <key><get var="serie_code"/></key>
+                        <value><get var="pareja_valores"/></value>
+                      </modifymap>
+                    </li>
+
+                  </condition>
+
+                  <set var="capituloActual_decode">
+                    <srai>decode <get name="capituloActual"/></srai>
+                  </set>
+                  
+                </think>
+
+                Se retrocedio en el capitulo hasta el minuto <get name="minutoActual"/>
+              </li>
+
+            </condition>
+
+          </li>
+
+        </condition>
+      
+      </li>
+
+    </condition>
+
+  </template>
+
+</category>
+
+<!-- REANUDAR LA REPRODUCCION -->
+<category>
+  <pattern>Reanuda la reproduccion</pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        El reproductor esta apagado
+
+      </li>
+
+      <li value="1">
+        <condition name="reproduciendo">
+          <li value="0">
+            <think>
+              <set name="reproduciendo">1</set>
+            </think>
+            La reproduccion ha sido reanudada
+
+          </li>
+
+          <li value="1">
+            La reproduccion ya estaba en curso
+
+          </li>
+        </condition>
+
+      </li>
+    </condition>
+    
+  </template>
+</category>
+
+<!-- DETENER LA REPRODUCCION -->
+<category>
+  <pattern>Deten la reproduccion</pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        El asistente de visualizacion esta cerrado
+      </li>
+
+      <li value="1">
+        <condition name="reproduciendo">
+          <li value="0">
+            La reproduccion estaba detenida
+
+          </li>
+          
+          <li value="1">
+            <condition name="tiempo">
+              <li value="unknown">
+                Aun no ha pasado tiempo
+              </li>
+
+              <li value="0">
+                Aun no ha pasado tiempo
+              </li>
+
+              <li>
+                Has estado viendo series <get name="tiempo"/> minutos
+              </li>
+
+            </condition>
+            
+            <think>
+              <set name="reproduciendo">0</set>
+            </think>
+
+          </li>
+        </condition>
+      </li>
+
+    </condition>
+    <!-- CONDITION VISUALIZADO -->
+
+  </template>
+
+</category>
+
+
+
+<!-- CERRAR LA APLICACION DE VISIONADO -->
+<category>
+  <pattern>[Cierra Termina Apaga] el reproductor</pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        Ya estaba apagado
+      </li>
+
+      <li value="1">
+        <think>
+          <set name="visualizado">0</set>
+          <set name="reproduciendo">0</set>
+          <set name="tiempo">0</set>
+          <set name="topic">unknown</set>
+        </think>
+        He cerrado la aplicacion
+
+      </li>
+
+    </condition>
+    
+  </template>
+</category>
+
+
+<!-- ACTIVAR/DESACTIVAR LOS SUBTITULOS, ASI COMO SELECCIONAR EL IDIOMA -->
+<category>
+  <pattern>[Activa Habilita] los subtitulos</pattern>
+  <template>
+    
+    <condition name="visualizado">
+
+      <li value="0">
+        Actualmente el visionado esta cerrado
+      </li>
+
+      <li value="1">
+
+        <condition name="subtitulosActivados">
+          <li value="0">
+            <think>
+              <set name="subtitulosActivados">1</set>
+            </think>
+            Los subtitulos han sido activados
+          </li>
+
+          <li value="1">
+            
+            Los subtitulos ya estaban activados
+          </li>
+        </condition>
+
+      </li>
+
+    </condition>
+    <!-- CONDITION visualizado -->
+    
+
+  </template>
+</category>
+
+<category>
+  <pattern>[Desactiva Deshabilita] los subtitulos</pattern>
+  <template>
+    
+    <condition name="visualizado">
+
+      <li value="0">
+        Actualmente el visionado esta cerrado
+      </li>
+
+      <li value="1">
+
+        <condition name="subtitulosActivados">
+          <li value="0">
+            Los subtitulos ya estaban desactivados
+          </li>
+
+          <li value="1">
+            <think>
+              <set name="subtitulosActivados">0</set>
+            </think>
+            Los subtitulos han sido desctivados
+          </li>
+        </condition>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- CAMBIAR LOS SUBTITULOS ENTRE LOS DISPONIBLES -->
+<category>
+  <pattern>pon los subtitulos en *</pattern>
+  <template>
+
+    <condition name="visualizado">
+
+      <li value="0">
+        Actualmente el visionado esta cerrado
+      </li>
+
+      <li value="1">
+        <think>
+          <set var="seleccionSubtitulo"><star/></set>
+
+          <!-- Los cojo todos -->
+          <set var="todos_subtitulos">
+            <srai>decode_fields <map><name><srai>code <get name="serieReproducir"/></srai></name>subtitulos</map></srai>
+          </set>
+
+          <set var="existe">
+            <srai>FINDITEM <star/> IN <get var="todos_subtitulos"/></srai>
+          </set>
+        </think>
+
+        <condition var="existe">
+          <li value="0">
+            Los subtitulos en <get var="seleccionSubtitulo"/> no estan disponibles. (<get var="todos_subtitulos"/>)
+          </li>
+
+          <li>
+            <think>
+              <set name="subtituloActual">
+                <get var="seleccionSubtitulo"/>
+              </set>
+            </think>
+            Los subtitulos han sido cambiados a <get name="subtituloActual"/>
+
+          </li>
+
+        </condition>
+      </li>
+        
+    </condition>
+
+  </template>
+
+</category>
+
+<!-- CAMBIAR EL AUDIO ENTRE LOS IDIOMAS DISPONIBLES -->
+<category>
+  <pattern>pon el [idioma audio] en *</pattern>
+  <template>
+
+    <condition name="visualizado">
+
+      <li value="0">
+        Actualmente el visionado esta cerrado
+      </li>
+
+      <li value="1">
+        <think>
+          <set var="seleccionIdioma"><star/></set>
+
+          <!-- Los cojo todos -->
+          <set var="todos_idiomas">
+            <srai>decode_fields <map><name><srai>code <get name="serieReproducir"/></srai></name>idioma</map></srai>
+          </set>
+
+          <set var="existe">
+            <srai>FINDITEM <star/> IN <get var="todos_idiomas"/></srai>
+          </set>
+        </think>
+
+        <condition var="existe">
+          <li value="0">
+            El idioma <get var="seleccionIdioma"/> no estan disponible. (<get var="todos_idiomas"/>)
+          </li>
+
+          <li>
+            <think>
+              <set name="idiomaActual">
+                <get var="seleccionIdioma"/>
+              </set>
+            </think>
+            El idioma ha sido cambiado a <get name="idiomaActual"/>
+
+          </li>
+
+        </condition>
+      </li>
+        
+    </condition>
+
+  </template>
+
+</category>
+
+<category>
+  <pattern>Informacion de la reproduccion</pattern>
+  <template>
+    <condition name="visualizado">
+      <li value="0">
+        Actualmente el visionado esta desactivado
+      </li>
+
+      <li value="1">
+
+        Serie actual: <get name="serieReproducir"/>
+        Capitulo actual: <srai>decode <get name="capituloActual"/></srai>
+        Minuto actual: <get name="minutoActual"/>
+        Duracion total: <get name="duracionTotal"/>
+        Idioma actual: <get name="idiomaActual"/>
+        Usuario actual: <get name="usuarioActual"/>
+        
+        <condition name="subtitulosActivados">
+          <li value="0">
+            Subtitulos actuales: Desactivados
+          </li>
+
+          <li value="1">
+            Subtitulos actuales: <get name="subtituloActual"/>
+          </li>
+        </condition>
+        
+        <condition name="reproduciendo">
+          <li value="0">
+            Reproduccion Detenida
+          </li>
+
+          <li value="1">
+            Reproduccion en curso
+
+            <condition name="tiempo">
+              <li value="unknown">
+                Tiempo transcurrido: 0 minutos
+              </li>
+
+              <li>
+                Tiempo transcurrido: <get name="tiempo"/>
+              </li>
+            </condition>
+            
+          </li>
+        </condition>
+
+      </li>
+    </condition>
+  </template>
+</category>
+
+
+<category>
+  <pattern>Ha llegado * </pattern>
+  <template>
+    <think>
+      <set var="llega"><star/></set>
+    </think>
+
+    <condition name="usuarioActual">
+      <li><value><get var="llega"/></value>
+        Muy gracioso, sois la misma persona
+      </li>
+
+      <li>
+        <think>
+          <set name="reproduciendo">0</set>
+        </think>
+        Se ha detenido la reproduccion
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+</topic>
+
+
+<!-- TOPICs auxiliares -->
+
+<topic name="elegirOtra">
+
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set var="respuesta"><star/></set>
+      </think>
+      
+      <condition var="respuesta">
+
+        <li value="si">
+          <think>
+            <set name="topic">otroIntento</set>
+          </think>
+          Que serie desea ver?
+        </li>
+
+        <li value="no">
+          <think>
+            <set name="topic">unknown</set>
+          </think>
+          De acuerdo, cierro el asistente de visualizado
+        </li>
+
+        <li>
+          Lo lamento, no comprendo su respuesta. Desea elegir otra serie para reproducirla?
+        </li>
+
+      </condition>
+
+    </template>
+  </category>
+
+</topic>
+
+<!-- Lo meto en un topic para que detecte ese * como que es el pattern para ese único template -->
+<topic name="otroIntento">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <srai>REPRODUCE LA SERIE <star/></srai>
+    </template>
+  </category>
+</topic>
+
+<topic name="usuario">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set name="usuarioActual"><star/></set>
+
+        <set var="serieCode">
+          <srai>CODE <get name="serieReproducir"/></srai>
+        </set>
+      </think>
+
+      <condition name="usuarioActual">
+        <li value="carlos">
+
+          <think>
+            <set var="siViendo">
+              <srai>USUARIO <get name="usuarioActual"/> VIENDO <get name="serieReproducir"/></srai>
+            </set>
+
+          </think>
+
+          <condition var="siViendo">
+            <li value="0">
+              Actualmente no estabas siguiendo la serie <get name="serieReproducir"/>. Quieres comenzarla?
+
+              <think>
+                <set name="topic">seguirNuevaSerie</set>
+              </think>
+
+            </li>
+
+            <li>
+              <think>
+                <set var="actual">
+                  <!-- Se busca en el mapa de Carlos la serie y devuelve la pareja episodio - minutoActual -->
+                  <map><name><get name="usuarioActual"/></name><get var="serieCode"/></map>
+                </set>
+
+                <!-- Una serie en el mapa solo tendra un episodio con su respectivo capitulo -->
+                <!-- Por tanto el capitulo sera el index 1 y la duracion el index 2 tras quitar las arrobas -->
+                
+                <set var="actual">
+                  <srai>decode_fields <get var="actual"/></srai>
+                </set>
+
+                <set name="capituloActual">
+                  <srai>SELECTITEM 1 IN <get var="actual"/></srai>
+                </set>
+
+                <set var="capituloActual_decode">
+                  <srai>decode <get name="capituloActual"/></srai>
+                </set>
+
+                <set name="minutoActual">
+                  <srai>SELECTITEM 2 IN <get var="actual"/></srai>
+                </set>
+
+                <set name="topic">reproduce</set>
+
+                <set name="idiomaActual">
+                  <srai>decode_fields <map><name><get var="serieCode"/></name>idiomas</map></srai>
+                </set>
+
+                <!-- Por defecto el primero -->
+                <set name="idiomaActual">
+                  <srai>SELECTITEM 1 IN <get name="idiomaActual"/></srai>
+                </set>
+
+                <!-- Por defecto ninguno -->
+                <set name="subtituloActual">
+                  ninguno
+                </set>
+                
+                <set name="subtitulosActivados">0</set>
+
+                <set name="visualizado">1</set>
+
+                <set name="reproduciendo">1</set>
+
+                <set name="duracionTotal">
+                  <srai>OBTENERDURACION <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                </set>
+
+              </think>
+              Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+            </li>
+
+
+          </condition>
+          <!-- CONDITION VIENDO -->
+          
+
+        </li>
+        <!-- li USUSARIO CARLOS -->
+
+        <li value="marta">
+
+          <think>
+
+            <set var="siViendo">
+              <srai>USUARIO <get name="usuarioActual"/> VIENDO <get name="serieReproducir"/></srai>
+            </set>
+
+          </think>
+
+          <condition var="siViendo">
+            <li value="0">
+              Actualmente no estabas siguiendo la serie <get name="serieReproducir"/>. Quieres comenzarla?
+
+              <think>
+                <set name="topic">seguirNuevaSerie</set>
+              </think>
+
+            </li>
+
+            <li>
+              <think>
+                <set var="actual">
+                  <!-- Se busca en el mapa de Carlos la serie y devuelve la pareja episodio - minutoActual -->
+                  <map><name><get name="usuarioActual"/></name><get var="serieCode"/></map>
+                </set>
+
+                <!-- Una serie en el mapa solo tendra un episodio con su respectivo capitulo -->
+                <!-- Por tanto el capitulo sera el index 1 y la duracion el index 2 tras quitar las arrobas -->
+                
+                <set var="actual">
+                  <srai>decode_fields <get var="actual"/></srai>
+                </set>
+
+                <set name="capituloActual">
+                  <srai>SELECTITEM 1 IN <get var="actual"/></srai>
+                </set>
+
+                <set var="capituloActual_decode">
+                  <srai>decode <get name="capituloActual"/></srai>
+                </set>
+
+                <set name="minutoActual">
+                  <srai>SELECTITEM 2 IN <get var="actual"/></srai>
+                </set>
+
+                <set name="topic">reproduce</set>
+
+                <set name="idiomaActual">
+                  <srai>decode_fields <map><name><get var="serieCode"/></name>idiomas</map></srai>
+                </set>
+
+                <!-- Por defecto el primero -->
+                <set name="idiomaActual">
+                  <srai>SELECTITEM 1 IN <get name="idiomaActual"/></srai>
+                </set>
+
+                <!-- Por defecto ninguno -->
+                <set name="subtituloActual">
+                  ninguno
+                </set>
+
+                <set name="subtitulosActivados">0</set>
+
+                <set name="visualizado">1</set>
+
+                <set name="reproduciendo">1</set>
+
+                <set name="duracionTotal">
+                  <srai>OBTENERDURACION <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                </set>
+
+              </think>
+              Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+            </li>
+
+
+          </condition>
+          <!-- CONDITION VIENDO -->
+
+        </li>
+        <!-- LI MARTA -->
+
+        <li value="ambos">
+          <think>
+
+            <set var="viendoCarlos">
+              <srai>USUARIO carlos VIENDO <get name="serieReproducir"/></srai>
+            </set>
+
+          </think>
+
+          <condition var="viendoCarlos">
+
+            <li value="0">
+              <think>
+                <set var="comprobacion2">
+                  <srai>USUARIO marta VIENDO <get var="serieReproducir"/></srai>
+                </set>
+
+              </think>
+
+              <condition var="comprobacion2">
+                <li value="0">
+                  Ninguno de los dos la esta viendo, deberia incluirla como una nueva serie que estais siguiendo?
+                  <think>
+                    <set name="topic">seguirNuevaSerie</set>
+                  </think> 
+                </li>
+
+                <li>
+                  Carlos no esta viendo la serie, podria llevarse algun spoiler
+                </li>
+              </condition>
+              
+            </li>
+
+            <li>
+              <think>
+                <set var="viendoMarta">
+                  <srai>USUARIO marta VIENDO <get name="serieReproducir"/></srai>
+                </set>
+              </think>
+
+              <condition var="viendoMarta">
+                <li value="0">
+                  Marta no esta siguendo la serie, por tanto podria spoilearse
+                </li>
+
+                <li>
+
+                  <think>
+                    <set var="actual">
+                      <!-- Se busca en el mapa de Carlos (por ejemplo) la serie y devuelve la pareja episodio - minutoActual -->
+                      <map><name>carlos</name><get var="serieCode"/></map>
+                    </set>
+
+                    <!-- Una serie en el mapa solo tendra un episodio con su respectivo capitulo -->
+                    <!-- Por tanto el capitulo sera el index 1 y la duracion el index 2 tras quitar las arrobas -->
+                    
+                    <set var="actual">
+                      <srai>decode_fields <get var="actual"/></srai>
+                    </set>
+
+                    <set name="capituloActual">
+                      <srai>SELECTITEM 1 IN <get var="actual"/></srai>
+                    </set>
+
+                    <set var="capituloActual_decode">
+                      <srai>decode <get name="capituloActual"/></srai>
+                    </set>
+
+                    <set name="minutoActual">
+                      <srai>SELECTITEM 2 IN <get var="actual"/></srai>
+                    </set>
+
+                    <set name="idiomaActual">
+                      <srai>decode_fields <map><name><get var="serieCode"/></name>idiomas</map></srai>
+                    </set>
+
+                    <!-- Por defecto el primero -->
+                    <set name="idiomaActual">
+                      <srai>SELECTITEM 1 IN <get name="idiomaActual"/></srai>
+                    </set>
+
+                    <!-- Por defecto ninguno -->
+                    <set name="subtituloActual">
+                      ninguno
+                    </set>
+
+                    <set name="subtitulosActivados">0</set>
+
+                    <set name="visualizado">1</set>
+
+                    <set name="reproduciendo">1</set>
+
+                    <set name="topic">reproduce</set>
+
+                    <set name="duracionTotal">
+                      <srai>OBTENERDURACION <get name="capituloActual"/> <get name="serieReproducir"/></srai>
+                    </set>
+
+                  </think>
+                  Reproduciendo la serie <get name="serieReproducir"/>, <get var="capituloActual_decode"/> por el minuto <get name="minutoActual"/>
+
+                </li>
+
+              </condition>
+
+            </li>
+
+          </condition>
+
+        </li>
+        <!-- LI AMBOS -->
+
+      </condition>
+    </template>
+  </category>
+
+</topic>
+
+<topic name="seguirNuevaSerie">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <set var="opc"><star/></set>
+
+      <condition var="opc">
+        <li value="si">
+          <think>
+
+            <set var="serie_code">
+              <srai>code <get name="serieReproducir"/></srai>
+            </set>
+
+            <set var="nuevos_caps">
+              <map><name><get var="serie_code"/></name>temporada1</map>
+            </set>
+
+            <set var="nuevos_caps">
+              <srai>decode_fields <get var="nuevos_caps"/></srai>
+            </set>
+
+            <set var="cap">
+              <srai>SELECTITEM 1 IN <get var="nuevos_caps"/></srai>
+            </set>
+
+            <set var="pareja_valores"><get var="cap"/>@0</set>
+
+            <condition name="usuarioActual">
+              <li value="ambos">
+                <addtomap>
+                  <name>carlos</name>
+                  <key><get var="serie_code"/></key>
+                  <value><get var="pareja_valores"/></value>
+                </addtomap>
+
+                <addtomap>
+                  <name>marta</name>
+                  <key><get var="serie_code"/></key>
+                  <value><get var="pareja_valores"/></value>
+                </addtomap>
+              </li>
+
+              <li>
+                <addtomap>
+                  <name><get var="usuarioActual_code"/></name>
+                  <key><get var="serie_code"/></key>
+                  <value><get var="pareja_valores"/></value>
+                </addtomap>
+              </li>
+
+            </condition>
+
+          </think>
+          He incluido la serie <get name="serieReproducir"/> en siguiendo
+        </li>
+
+        <li value="no">
+          De acuerdo, en ese caso elija otra
+        </li>
+
+        <li>
+          No comprendo su respuesta, lo lamento
+        </li>
+      </condition>
+    </template>
+  </category>
+</topic>
+
+</aiml>

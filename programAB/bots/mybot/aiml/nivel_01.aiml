@@ -1,0 +1,887 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+
+<!-- NIVEL 01 - INTRODUCIR UNA NUEVA SERIE EN UNA DE LAS PLATAFORMAS -->
+
+<category>
+  <pattern>Introduce (la serie) *</pattern>
+  <template>
+    <!-- Evita el eco -->
+    <think>
+      <!-- Comprobar que existe lo pedido -->
+      <set name="serie"><star/></set>
+      <set name="code_serie"><srai>code <get name="serie"/></srai></set>
+
+    </think>
+      Dime la plataforma
+    <think>
+      <set name="topic">plataforma</set>
+    </think>
+    
+  </template>
+</category>
+
+<topic name="plataforma">
+  <category>
+    <pattern> ^ </pattern>
+    <template>
+      <think>
+        <set name="plat"><star/></set>
+        <!-- Puede darse el caso de que la plataforma sea Prime Video, y tenga un espacio, por lo que convierten en guiones bajos -->
+        <set var="plat_code">
+          <srai>code <get name="plat"/></srai>
+        </set>
+      </think>
+
+      <condition var="plat_code">
+        <li value="Netflix">
+          <think>
+            <set var="series_plat"><readset>seriesnetflix</readset></set>
+            <!-- Suponemos que no existe -->
+            <set var="existe">0</set>
+            
+            <set var="inicio">1</set>
+            <set var="salida">
+              <srai>COUNT <get var="series_plat"/></srai>
+            </set>
+            
+          </think>
+          
+          <!-- Bucle While por el loop del final -->
+          <condition var="inicio">
+            <!-- Solo cuando entre en este li, se termina el bucle -->
+            <li><value><get var="salida"/></value></li>
+
+            <li>
+              <think>
+                <set var="seleccionado">
+                  <srai>SELECTITEM <get var="inicio"/> IN <get var="series_plat"/></srai>
+                </set> 
+                <set var="inicio">
+                  <map name="successor"><get var="inicio"/></map>
+                </set>
+                 
+              </think>
+
+              <!-- Se compara que la serie exista en el set -->
+              <condition name="code_serie">
+                <li>
+                  <value><get var="seleccionado"/></value>
+                  <!-- Se hace solo si se cumple el value -->
+                  <think>
+                    <set var="existe">1</set>
+                  </think>
+                </li>
+              </condition>
+
+              <loop/>
+            <!-- li del CONDITION INICIO -->
+            </li>
+          </condition>
+          <!-- FIN CONDITION INICIO -->
+
+          <!-- Si la serie esta ya añadida, entonces se pasa a pedir los datos -->
+          <condition var="existe">
+            <!-- Si vale 1, la serie ya existe -->
+            <li value="1">
+              
+              <think>
+                <!-- addtomap incluye una nueva key que no existe en el mapa -->
+                <addtomap>
+                  <name><get name="code_serie"/></name>
+                  <key>plataforma</key>
+                  <value><get name="plat"/></value>
+                </addtomap>
+
+                <set name="topic">genero</set>
+              </think>
+              Dime el genero de <get name="serie"/>
+            </li>
+
+            <li value="0">
+              <get name="serie"/> ha sido incluida en el catalogo de series de <get name="plat"/>. Cree un map para incluir los datos de la serie y vuelve a preguntarme
+              <think>
+                <!-- Añade la serie al SET ya existente -->
+                <addtoset>
+                  <name>seriesnetflix</name>
+                  <key><get name="code_serie"/></key>
+                </addtoset>
+              </think>
+            </li>
+          </condition>
+          <!-- FIN CONDITION EXISTE -->
+
+        </li>
+        <!-- LI DE Netflix - Plataforma -->
+
+        <!-- PRIME VIDEO -->
+        <li value="Prime_Video">
+          <think>
+            <set var="series_plat"><readset>seriesprime</readset></set>
+            <!-- Suponemos que no existe -->
+            <set var="existe">0</set>
+            
+            <set var="inicio">1</set>
+            <set var="salida">
+              <srai>COUNT <get var="series_plat"/></srai>
+            </set>
+            
+          </think>
+          
+          <!-- Bucle While por el loop del final -->
+          <condition var="inicio">
+            <!-- Solo cuando entre en este li, se termina el bucle -->
+            <li><value><get var="salida"/></value></li>
+
+            <li>
+              <think>
+                <set var="seleccionado">
+                  <srai>SELECTITEM <get var="inicio"/> IN <get var="series_plat"/></srai>
+                </set> 
+                <set var="inicio">
+                  <map name="successor"><get var="inicio"/></map>
+                </set>
+                 
+              </think>
+
+              <!-- Se compara que la serie exista en el set -->
+              <condition name="code_serie">
+                <li>
+                  <value><get var="seleccionado"/></value>
+                  <!-- Se hace solo si se cumple el value -->
+                  <think>
+                    <set var="existe">1</set>
+                  </think>
+                </li>
+              </condition>
+
+              <loop/>
+            </li>
+            <!-- li CONDITION INICIO -->
+          </condition>
+          <!-- CONDITION INICIO -->
+
+
+          <!-- Si la serie esta ya añadida, entonces se pasa a pedir los datos -->
+          <condition var="existe">
+            <!-- Si vale 1, la serie ya existe -->
+            <li value="1">
+              
+              <think>
+                <!-- addtomap incluye una nueva key que no existe en el mapa -->
+                <addtomap>
+                  <name><get name="code_serie"/></name>
+                  <key>plataforma</key>
+                  <value><get name="plat"/></value>
+                </addtomap>
+
+                <set name="topic">genero</set>
+              </think>
+              Dime el genero de <get name="serie"/>
+            </li>
+
+            <li value="0">
+              <get name="serie"/> Ha sido incluida en el catalogo de series de <get name="plat"/>. Cree un map para incluir los datos de la serie y vuelve a preguntarme
+              <think>
+                <!-- Añade la serie al SET ya existente -->
+                <addtoset>
+                  <name>seriesprime</name>
+                  <key><get name="code_serie"/></key>
+                </addtoset>
+              </think>
+            </li>
+          </condition>
+
+        </li>
+        <!-- li PRIME_VIDEO - PLATAFORMA -->
+
+        <li>
+          Esa plataforma no está disponible. Seguir incluyendo una serie
+          <think>
+            <set name="topic">seguirPlataforma</set>
+          </think>
+        </li>
+
+      </condition>
+      <!-- FIN DE PLATAFORMA -->
+      
+    </template>
+  </category>
+</topic>
+
+<topic name="seguirPlataforma">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <set var="opc"><star/></set>
+      <condition var="opc">
+        <li value="si">
+          Digame a que plataforma pertenece la serie (Netflix o Prime Video)
+          <think>
+            <set name="topic">plataforma</set>
+          </think>
+        </li>
+
+        <li value="no">
+          De acuerdo. Cancelo la insercion de datos de la serie <get name="serie"/>
+          <think>
+            <set name="topic">unknown</set>
+          </think>
+        </li>
+
+        <li>
+          No comprendo su respuesta. Debo seguir preguntando por la plataforma?
+        </li>
+
+      </condition>
+    </template>
+
+  </category>
+
+</topic>
+
+<!-- Insercion de Genero -->
+<topic name="genero">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <!-- Tengo todos los generos -->
+        <set var="recogida"><star/></set>
+
+        <!-- Por donde se empezara a coger generos -->
+        <set var="fin">
+          <srai>COUNT <get var="recogida"/></srai>
+        </set>
+        <!-- Si hay dos valores, tiene que pasar 1 y 2 para poder tomar elementos con SELECTITEM -->
+        <set var="fin"><map name="successor"><get var="fin"/></map></set>
+        
+        <set var="inicio">1</set>
+        <set var="listageneros"></set>
+      </think>
+      
+      <condition var="inicio">
+
+        <li value="1">
+          <think>
+            <!-- Cojo un elemento -->
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <set var="listageneros">
+              <get var="uno"/>
+            </set>
+              
+            <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+          </think>
+          <loop/>
+        </li>
+
+        <li><value><get var="fin"/></value>
+          <think>
+            <addtomap>
+              <name><get name="code_serie"/></name>
+              <key>genero</key>
+              <value><get var="listageneros"/></value>
+            </addtomap>
+            <set name="topic">idioma</set>
+          </think>
+          Generos insertados correctamente. Digame los idiomas disponibles para la serie <get name="serie"/>
+        </li>
+
+        <li>
+          <!-- Cojo un elemento -->
+          <think>
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <condition var="uno">
+              <!-- solo aumenta el contador -->
+              <li value="y">
+                <think>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+              <li>
+                <think>
+                  <set var="listageneros">
+                    <get var="listageneros"/>@<get var="uno"/>
+                  </set>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+            <!-- IF UNO -->
+            </condition>
+          </think>
+          <loop/>
+        </li>
+      
+      <!-- IF INICIO -->
+      </condition>
+
+    </template>
+  </category>
+</topic>
+
+<!-- Insercion de Idioma -->
+<topic name="idioma">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <!-- Tengo todos los idiomas -->
+        <set var="recogida"><star/></set>
+
+        <!-- Por donde se empezara a coger idiomas -->
+        <set var="fin">
+          <srai>COUNT <get var="recogida"/></srai>
+        </set>
+        <!-- Si hay dos valores, tiene que pasar 1 y 2 para poder tomar elementos con SELECTITEM -->
+        <set var="fin"><map name="successor"><get var="fin"/></map></set>
+        
+        <set var="inicio">1</set>
+        <set var="listaidiomas"></set>
+      </think>
+      
+      <condition var="inicio">
+
+        <li value="1">
+          <think>
+            <!-- Cojo un elemento -->
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <set var="listaidiomas">
+              <get var="uno"/>
+            </set>
+              
+            <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+          </think>
+          <loop/>
+        </li>
+
+        <li><value><get var="fin"/></value>
+          <think>
+            <addtomap>
+              <name><get name="code_serie"/></name>
+              <key>idiomas</key>
+              <value><get var="listaidiomas"/></value>
+            </addtomap>
+            <set name="topic">subtitulos</set>
+          </think>
+          Idiomas insertados correctamente. Digame los subtitulos de los que dispone <get name="serie"/>
+        </li>
+
+        <li>
+          <think>
+            <!-- Cojo un elemento -->
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <condition var="uno">
+              <!-- solo aumenta el contador -->
+              <li value="y">
+                <think>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+              <li value="e">
+                <think>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+              <li>
+                <think>
+                  <set var="listaidiomas">
+                    <get var="listaidiomas"/>@<get var="uno"/>
+                  </set>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+            <!-- IF UNO -->
+            </condition>
+          </think>
+          <loop/>
+        </li>
+      
+      <!-- IF INICIO -->
+      </condition>
+
+    </template>
+  </category>
+</topic>
+
+<!-- Insercion de Subtitulos -->
+<topic name="subtitulos">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <!-- Tengo todos los subtitulos -->
+        <set var="recogida"><star/></set>
+
+        <!-- Por donde se empezara a coger subtitulos -->
+        <set var="fin">
+          <srai>COUNT <get var="recogida"/></srai>
+        </set>
+        <!-- Si hay dos valores, tiene que pasar 1 y 2 para poder tomar elementos con SELECTITEM -->
+        <set var="fin"><map name="successor"><get var="fin"/></map></set>
+        
+        <set var="inicio">1</set>
+        <set var="listasubs"></set>
+      </think>
+      
+      <condition var="inicio">
+        <li value="1">
+          <think>
+            <!-- Cojo un elemento -->
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <set var="listasubs">
+              <get var="uno"/>
+            </set>
+              
+            <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+          </think>
+          <loop/>
+        </li>
+
+        <li><value><get var="fin"/></value>
+          <think>
+            <addtomap>
+              <name><get name="code_serie"/></name>
+              <key>subtitulos</key>
+              <value><get var="listasubs"/></value>
+            </addtomap>
+            <set name="topic">sinopsis</set>
+          </think>
+          Subtitulos insertados correctamente. Digame de que trata <get name="serie"/>
+        </li>
+
+        <li>
+          <think>
+            <!-- Cojo un elemento -->
+            <set var="uno">
+              <srai>SELECTITEM <get var="inicio"/> IN <get var="recogida"/></srai>
+            </set>
+
+            <condition var="uno">
+              <!-- solo aumenta el contador -->
+              <li value="y">
+                <think>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+              <li value="e">
+                <think>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+              <li>
+                <think>
+                  <set var="listasubs">
+                    <get var="listasubs"/>@<get var="uno"/>
+                  </set>
+                  <set var="inicio"><map name="successor"><get var="inicio"/></map></set>
+                </think>
+              </li>
+
+            <!-- IF UNO -->
+            </condition>
+          </think>
+          <loop/>
+        </li>
+      
+      <!-- IF INICIO -->
+      </condition>
+
+    </template>
+  </category>
+</topic>
+
+<!-- Insercion de Sinopsis -->
+<topic name="sinopsis">
+  <category>
+    <pattern> ^ </pattern>
+    <template>
+      <think>
+        <set var="sinop"><srai>code <star/></srai></set>
+        <addtomap>
+          <name><get name="code_serie"/></name>
+          <key>sinopsis</key>
+          <value><get var="sinop"/></value>
+        </addtomap>
+        <set name="topic">web</set>
+      </think>
+      Indicame el enlace web que lleva a la serie <get name="serie"/>
+    </template>
+  </category>
+</topic>
+
+<!-- Insercion de Web -->
+<topic name="web">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set var="link"><star/></set>
+        <addtomap>
+          <name><get name="code_serie"/></name>
+          <key>web</key>
+          <value><get var="link"/></value>
+        </addtomap>
+
+        <!-- Se crea una variable nTemporada, que guarda el valor de la temporada que se esta insertando -->
+        <set name="nTemporada">0</set>
+        <set name="topic">temporadas</set>
+      </think>
+      Ya solo queda incluir las temporadas que estaran disponibles para <get name="serie"/>. Digame si deberia hacerlo ahora
+    </template>
+  </category>
+</topic>
+
+
+<!-- Seguir insertando temporadas -->
+<topic name="temporadas">
+  <category>
+
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set var="opc"><star/></set>
+      </think>
+      <condition var="opc">
+        <li value="si">
+          <think>
+            <set name="listaEpisodios"></set>
+            <set name="primero">1</set>
+            <set name="nTemporada"><map name="successor"><get name="nTemporada"/></map></set>
+            <set name="topic">titulo</set>
+          </think>
+          Digame el titulo del episodio
+        </li>
+
+        <li value="no">
+          <think>
+            <set name="topic">unknown</set>
+          </think>
+          La serie <get name="serie"/> ha sido incluida en <get name="plat"/>
+        </li>
+
+        <li>
+          No comprendo su respuesta. Digame si deberia comenzar con la insercion de temporadas
+        </li>
+      </condition>
+    </template>
+
+  </category>
+</topic>
+
+<!-- Insercion del Titulo -->
+<topic name="titulo">
+
+  <!-- Recoge al menos un valor -->
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set name="tit"><star/></set>
+        <set name="topic">duracion</set>
+      </think>
+      Dime la duracion del episodio
+    </template>
+  </category>
+
+</topic>
+
+<!-- Insercion de la Duracion -->
+<topic name="duracion">
+
+  <!-- Recoge al menos un valor -->
+  <category>
+    <pattern><set>number</set></pattern>
+    <template>
+      <think>
+        <set name="dur"><star/></set>
+        
+        <!--Se debe ver si es el primero que se introduce por el tema del arroba (@) -->
+        <condition name="primero">
+          <!-- 1 si es el primero -->
+          <li value="1">
+            <think>
+              <set name="listaEpisodios"><get name="tit"/>@<get name="dur"/></set>
+              <set name="primero">0</set>
+            </think>
+          </li>
+          
+          <li>
+            <think>
+              <set name="listaEpisodios"><get name="listaEpisodios"/>@<get name="tit"/>@<get name="dur"/></set>
+            </think>
+          </li>
+        
+        </condition>
+        <set name="topic">seguirIncluyendo</set>
+      </think>
+      
+      Capitulo guardado. Digame si deberia incluir otro capitulo
+    </template>
+  </category>
+
+</topic>
+
+
+<!-- CONTROL DE INSERCION DE EPISODIOS -->
+
+<topic name="seguirIncluyendo">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set var="opc"><star/></set>
+      </think>
+      <condition var="opc">
+        <li value="si">
+          Dime si sera un capitulo de la misma temporada
+          <think>
+            <set name="topic">mismaTemporada</set>
+          </think>
+        </li>
+
+        <li value="no">
+          <think>
+            <addtomap>
+              <name><get name="code_serie"/></name>
+              <key>temporada<get name="nTemporada"/></key>
+              <value><get name="listaEpisodios"/></value>
+            </addtomap>
+
+            <set name="topic">temporadas</set>
+          </think>
+          
+          Se ha introducido la temporada. Indiqueme si deberia incluir otra temporada para <get name="code_serie"/>
+        </li>
+
+        <li>
+          No comprendo su respuesta. Indique si deberia seguir insertando episodios
+        </li>
+
+      </condition>
+    </template>
+
+  </category>
+
+</topic>
+
+<topic name="mismaTemporada">
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set var="opc"><star/></set>
+      </think>
+      
+      <condition var="opc">
+        <li value="si">
+          Digame el titulo del episodio
+          <think>
+            <set name="primero">0</set>
+            <set name="topic">titulo</set>
+          </think>
+        </li>
+
+        <li value="no">
+          <think>
+            <addtomap>
+              <name><get name="code_serie"/></name>
+              <key>temporada<get name="nTemporada"/></key>
+              <value><get name="listaEpisodios"/></value>
+            </addtomap>
+
+            <set name="nTemporada"><map name="successor"><get name="nTemporada"/></map></set>
+            <set name="primero">1</set>
+            <set name="listaEpisodios"></set>
+            <set name="topic">titulo</set>
+          </think>
+
+          Se ha introducido la temporada completa. Pasemos a la siguiente temporada. Dime el nombre del episodio
+
+        </li>
+
+        <li>
+          No he comprendido si es un capitulo de la misma temporada o no
+        </li>
+
+      </condition>
+    </template>
+
+  </category>
+
+</topic>
+
+<!-- Insertar un capitulo -->
+<category>
+  <pattern>[inserta aniade incluye] un nuevo capitulo de la temporada <set>number</set> de *</pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="2"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="tiene">
+            <srai>BUSCARTEMPORADA <star index="1"/> <get var="pedida"/></srai>
+          </set>
+        </think>
+        <condition var="tiene">
+          <li value="0">
+            La serie <get var="pedida"/> no tiene una temporada <star index="1"/>
+          </li>
+
+          <li>
+            <think>
+              <set name="code_serie">
+                <srai>code <get var="pedida"/></srai>
+              </set>
+
+              <set name="nTemporada"><star index="1"/></set>
+              <set name="tempElegida">
+                temporada<get name="nTemporada"/>
+              </set>
+
+              <set name="listaEpisodios">
+                <map><name><get name="code_serie"/></name><get name="tempElegida"/></map>
+              </set>
+
+              <set var="nEpis">
+                <srai>COUNT <get var="listaCapitulos"/></srai>
+              </set>
+            </think>
+            <condition var="nEpis">
+              <!-- Si vale 1 hay algo metido y por tanto no es el primer capitulo-->
+              <li value="1">
+                <think>
+                  <set name="topic">nuevoEpisodioTitulo</set>
+                </think>
+                Dime el nombre del capitulo
+              </li>
+
+              <li>
+                <think>
+                  <set name="topic">titulo</set>
+                </think>
+                Dime el nombre del episodio
+              </li>
+
+            </condition>
+            <!-- CONDITION NEPIS -->
+          </li>
+        </condition>
+        <!-- CONDITION TIENE -->
+      </li>
+    </condition>
+    <!-- CONDITION BUSQUEDA -->
+  </template>
+</category>
+
+<!-- Insercion del Titulo -->
+<topic name="nuevoEpisodioTitulo">
+
+  <!-- Recoge al menos un valor -->
+  <category>
+    <pattern> * </pattern>
+    <template>
+      <think>
+        <set name="tit"><star/></set>
+        <set name="topic">nuevoEpisodioDuracion</set>
+      </think>
+      Dime la duracion del episodio
+    </template>
+  </category>
+
+</topic>
+
+<!-- Insercion de la Duracion -->
+<topic name="nuevoEpisodioDuracion">
+
+  <!-- Recoge al menos un valor -->
+  <category>
+    <pattern><set>number</set></pattern>
+    <template>
+      <think>
+        <set name="dur"><star/></set>
+        <set name="listaEpisodios">
+          <get name="listaEpisodios"/>@<get name="tit"/>@<get name="dur"/>
+        </set>
+        
+        <modifymap>
+          <name><get name="code_serie"/></name>
+          <key>temporada<get name="nTemporada"/></key>
+          <value><get name="listaEpisodios"/></value>
+        </modifymap>
+      </think>
+      
+      Se ha guardado el capitulo
+    </template>
+  </category>
+
+</topic>
+
+<!-- Insertar el primer capitulo de una temporada nueva -->
+<category>
+  <pattern>[incluye aniade inserta] el primer [episodio capitulo] de una (nueva) temporada (nueva) de *</pattern>
+  <template>
+    <think>
+      <set name="code_serie"><star/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get name="code_serie"/></srai>
+      </set>
+    </think>
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get name="code_serie"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <!-- Contar temporadas devuelve el total, por tanto una nueva seria un successor a ese valor -->
+          <set name="nTemporada">
+            <srai>CONTARTEMPORADAS <get name="code_serie"/></srai>
+          </set>
+          <set name="nTemporada">
+            <map name="successor"><get name="nTemporada"/></map>
+          </set>
+          <!-- Controla que el capitulo a insertar era el primero -->
+          <set name="primero">1</set>
+          <set name="topic">titulo</set>
+
+        </think>
+        Dime el nombre del primer episodio
+      </li>
+    </condition>
+    
+  </template>
+</category>
+</aiml>

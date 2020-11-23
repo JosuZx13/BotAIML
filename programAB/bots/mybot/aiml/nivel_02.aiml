@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml version="2.0">
+
+<!-- NIVEL 02 - PREGUNTAS SOBRE LAS SERIES -->
+
+<!-- PLATAFORMA DE LA SERIE -->
+<category>
+  <pattern> ^ plataforma ^ (serie) * </pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="3"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+
+      <li value="Prime">        
+        La serie <get var="pedida"/> puede verse en la plataforma de Prime Video
+      </li>
+
+      <li value="Netflix">
+        La serie <get var="pedida"/> puede verse en la plataforma de Netflix
+      </li>
+
+      <li>
+        La serie no esta disponible en ninguna plataforma, puede pedirme incluirla, si lo desea
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- GENERO DE LA SERIE -->
+<category>
+  <pattern> ^ generos ^ (serie) * </pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="3"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie no esta disponible en ningun catalogo, puede pedirme incluirla, si lo desea
+      </li>
+
+      <li>
+        <think>
+          <set var="pedida_code">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <set var="gern">
+            <map><name><get var="pedida_code"/></name>genero</map>
+          </set>
+
+          <set var="descodificado">
+            <srai>decode_fields <get var="gern"/></srai>
+          </set>
+
+          <set var="descodificado">
+            <srai>decode <get var="descodificado"/></srai>
+          </set>
+        </think>
+
+        La tematica de <get var="pedida"/> es <get var="descodificado"/>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- IDIOMAS DE LA SERIE -->
+<category>
+  <pattern> ^ [idioma idiomas audios audio] ^ [esta tiene dispone] ^ (serie) * </pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="4"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie no esta disponible en ningun catalogo, puede pedirme incluirla, si lo desea
+      </li>
+
+      <li>
+        <think>
+          <set var="pedida_code">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <set var="idm">
+            <map><name><get var="pedida_code"/></name>idiomas</map>
+          </set>
+
+          <set var="descodificado">
+            <srai>decode_fields <get var="idm"/></srai>
+          </set>
+        </think>
+
+        Los idiomas disponibles para <get var="pedida"/> son <get var="descodificado"/>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- SUBTITULOS DE LA SERIE -->
+<category>
+  <pattern> Dime subtitulos que tiene la serie * </pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="4"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie no esta disponible en ningun catalogo, puede pedirme incluirla, si lo desea
+      </li>
+
+      <li>
+        <think>
+          <set var="pedida_code">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <set var="subs">
+            <map><name><get var="pedida_code"/></name>subtitulos</map>
+          </set>
+
+          <set var="descodificado">
+            <srai>decode_fields <get var="subs"/></srai>
+          </set>
+        </think>
+
+        Los subtitulos disponibles para <get var="pedida"/> son <get var="descodificado"/>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- SINOPSIS DE LA SERIE -->
+<category>
+  <pattern> ^ [trata sinopsis] ^ (serie) *</pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="3"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo, podria pedirme que la incluya en alguno
+      </li>
+
+      <li>
+        <think>
+          <set var="pedida_code">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <set var="sinop">
+            <map><name><get var="pedida_code"/></name>sinopsis</map>
+          </set>
+
+          <set var="descodificado">
+            <srai>decode <get var="sinop"/></srai>
+          </set>
+        </think>
+
+        <get var="descodificado"/>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- WEB DE LA SERIE -->
+<category>
+  <pattern> ^ [enlace link web] ^ (serie) *</pattern>
+  <template>
+    <think>
+      <set var="pedida"><star index="3"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta incluida en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="pedida_code">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <set var="wb">
+            <map><name><get var="pedida_code"/></name>web</map>
+          </set>
+
+        </think>
+
+        La direccion web de <get var="pedida"/> es <get var="wb"/>
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<!-- INFORMACION DE TEMPORADAS -->
+
+<category>
+  <pattern> Cuantas temporadas tiene (la serie) * </pattern>
+  <template>
+    <think>
+      <set var="pedida">
+        <star/>
+      </set>
+
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="seriePreguntada">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          <!-- claves del mapa seriePedida -->
+          <set var="llaves">
+            <readkeys><get var="seriePreguntada"/></readkeys>
+          </set>
+
+          <!-- Las temporadas empiezan en la primera, 1 -->
+          <set var="indice">1</set>
+          <set var="tempX">temporada<get var="indice"/></set>
+          <set var="comprueba">
+            <srai>FINDITEM <get var="tempX"/> IN <get var="llaves"/></srai>
+          </set>
+
+          <!-- Si devuelve 0, no esta. Se presupone que las temporadas van en orden -->
+          <condition var="comprueba">
+            <li value="0">
+              <!-- Se debe disminuir uno, pues si falla en el 4, hay tres temporadas -->
+              <set var="indice">
+                <map name="predecessor"><get var="indice"/></map>
+              </set>
+            </li>
+
+            <!-- Si la temporada existe, se aumenta el indice y se hace loop -->
+            <li>
+
+              <set var="indice">
+                <map name="successor"><get var="indice"/></map>
+              </set>
+              
+              <set var="tempX">temporada<get var="indice"/></set>
+              
+              <set var="comprueba">
+                <srai>FINDITEM <get var="tempX"/> IN <get var="llaves"/></srai>
+              </set>
+
+              <loop/>
+            </li>
+          </condition>
+        </think>
+        Tiene <get var="indice"/> temporadas
+
+      </li>
+    </condition>
+    <!-- CONDITION BUSQUEDA -->
+
+  </template>
+</category>
+
+
+<category>
+  <pattern> ^ [capitulos episodios] tiene la temporada <set>number</set> de * </pattern>
+  <template>
+    <think>
+      <set var="pedida">
+        <star index="3"/>
+      </set>
+
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="total">
+            <srai>TOTALCAPITULOSTEMPORADA <star index="2"/> <get var="pedida"/></srai>
+          </set>
+        </think>
+          
+        <condition var="total">
+          <li value="-1">
+            La serie <get var="pedida"/> no tiene una temporada <star index="2"/> episodios
+          </li>
+
+          <li>
+            La temporada tiene <get var="total"/>
+          </li>
+
+        </condition>
+        <!-- CONDICION TOTAL -->
+      </li>
+
+    </condition>
+    <!-- CONDITION BUSQUEDA -->
+      
+  </template>
+</category>
+
+<category>
+  <pattern> ^ [capitulos episodios] tiene en total (la serie) *</pattern>
+  <template>
+    <think>
+      <!-- Se codifica la serie por si tuviera espacios -->
+      <set var="pedida">
+        <star index="2"/>
+      </set>
+
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <!-- un contador avanzara hasta el total de series -->
+          <set var="tempTotales">
+            <srai>CONTARTEMPORADAS <get var="pedida"/></srai>
+          </set>
+
+          <set var="contador">0</set>
+
+          <set var="xTemporada">1</set>
+          
+          <set var="tempX">temporada<get var="xTemporada"/></set>
+
+          <set var="totalCapitulos">0</set>
+        </think>
+
+        <condition var="contador">
+          <!-- li de ruptura -->
+          <li><value><get var="tempTotales"/></value></li>
+
+          <li>
+            <think>
+              <!-- No hace falta comprobar que existe porque ya se sabe que hay x Temporadas -->
+              
+              <!-- Recojo los capitulos de una temporada -->
+              <set var="capTemporada">
+                <srai>TOTALCAPITULOSTEMPORADA <get var="xTemporada"/> <get var="pedida"/></srai>
+              </set>
+
+              <set var="totalCapitulos">
+                <srai>SUMA <get var="totalCapitulos"/> <get var="capTemporada"/></srai>
+              </set>
+                  
+              <!-- Como ya se cogido los capitulos de esa temporada, avanzo -->
+              <set var="xTemporada">
+                <map name="successor"><get var="xTemporada"/></map>
+              </set>
+                
+              <set var="contador">
+                <map name="successor"><get var="contador"/></map>
+              </set>
+            </think>
+            <loop/>
+          </li>
+
+        </condition>
+        <!-- CONDITION CONTADOR -->
+
+        La serie <get var="pedida"/> tiene <get var="totalCapitulos"/> episodios
+      </li>
+
+    </condition>
+    <!-- CONDICION BUSQUEDA -->
+    
+
+  </template>
+</category>
+
+<category>
+  <pattern>Cuantos generos ^ [disponibles tiene] (la serie) * </pattern>
+  <template>
+
+    <think>
+      <set var="pedida"><star index="2"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="code_serie">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          
+          <set var="g">
+            <map><name><get var="code_serie"/></name>genero</map>
+          </set>
+
+          <set var="totales">
+            <srai>CONTARSINARROBAS <get var="g"/></srai>
+          </set>
+
+        </think>
+        La serie <get var="pedida"/> tiene disponible <get var="totales"/> generos distintos
+      </li>
+    </condition>
+    
+  </template>
+</category>
+
+<category>
+  <pattern>Cuantos idiomas ^ [disponibles tiene] (la serie) * </pattern>
+  <template>
+
+    <think>
+      <set var="pedida"><star index="2"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="code_serie">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          
+          <set var="i">
+            <map><name><get var="code_serie"/></name>idiomas</map>
+          </set>
+
+          <set var="totales">
+            <srai>CONTARSINARROBAS <get var="i"/></srai>
+          </set>
+
+        </think>
+        La serie <get var="pedida"/> tiene disponible <get var="totales"/> idiomas distintos
+      </li>
+    </condition>
+    
+  </template>
+</category>
+
+<category>
+  <pattern>Cuantos subtitulos ^ [disponibles tiene] (la serie) * </pattern>
+  <template>
+
+    <think>
+      <set var="pedida"><star index="2"/></set>
+      <set var="busqueda">
+        <srai>BUSCAPLATAFORMA <get var="pedida"/></srai>
+      </set>
+    </think>
+
+    <condition var="busqueda">
+      <li value="0">
+        La serie <get var="pedida"/> no esta disponible en ningun catalogo
+      </li>
+
+      <li>
+        <think>
+          <set var="code_serie">
+            <srai>code <get var="pedida"/></srai>
+          </set>
+          
+          <set var="s">
+            <map><name><get var="code_serie"/></name>subtitulos</map>
+          </set>
+
+          <set var="totales">
+            <srai>CONTARSINARROBAS <get var="s"/></srai>
+          </set>
+
+        </think>
+        La serie <get var="pedida"/> tiene disponible <get var="totales"/> subtitulos distintos
+      </li>
+    </condition>
+    
+  </template>
+</category>
+
+<category>
+  <pattern>esta disponible el idioma * para (la serie) * </pattern>
+  <template>
+    <think>
+      <set var="preguntado"><star index="1"/></set>
+      <set var="serie_code"><srai>code <star index="2"/></srai></set>
+
+      <set var="todos_idiomas">
+        <map><name><get var="serie_code"/></name>idiomas</map>
+      </set>
+
+      <set var="todos_idiomas">
+        <srai>decode_fields <get var="todos_idiomas"/></srai>
+      </set>
+
+      <set var="existe">
+        <srai>FINDITEM <get var="preguntado"/> IN <get var="todos_idiomas"/></srai>
+      </set>
+    </think>
+
+      <condition var="existe">
+        <li value="0">
+          El idioma <get var="preguntado"/> no esta disponible
+        </li>
+
+        <li>
+          El idioma <get var="preguntado"/> si esta disponible
+        </li>
+
+    </condition>
+  </template>
+
+</category>
+
+<category>
+  <pattern>Estan disponibles los subtitulos * para (la serie) * </pattern>
+  <template>
+    <think>
+      <set var="preguntado"><star index="1"/></set>
+      <set var="serie_code"><srai>code <star index="2"/></srai></set>
+
+      <set var="todos_subtitulos">
+        <map><name><get var="serie_code"/></name>subtitulos</map>
+      </set>
+
+      <set var="todos_subtitulos">
+        <srai>decode_fields <get var="todos_idiomas"/></srai>
+      </set>
+
+      <set var="existe">
+        <srai>FINDITEM <get var="preguntado"/> IN <get var="todos_subtitulos"/></srai>
+      </set>
+    </think>
+
+      <condition var="existe">
+        <li value="0">
+          Los subtitulos en <get var="preguntado"/> no estan disponibles
+        </li>
+
+        <li>
+          Los subtitulos en <get var="preguntado"/> si estan disponibles
+        </li>
+
+    </condition>
+  </template>
+
+</category>
+
+<category>
+  <pattern>Como se llama el episodio <set>number</set> de la temporada <set>number</set> de la serie * </pattern>
+  <template>
+    <think>
+      <set var="n_capi_preguntado"><star index="1"/></set>
+      <set var="n_temp_preguntado">temporada<star index="2"/></set>
+      <set var="serie_preguntada"><srai>code <star index="3"/></srai></set>
+
+      <set var="totales">
+        <map><name><get var="serie_preguntada"/></name><get var="n_temp_preguntado"/></map>
+      </set>
+    </think>
+    <condition var="totales">
+      <li value="unknown">
+        No existe la temporada
+      </li>
+
+      <li>
+        <think>
+          <set var="totales">
+            <srai>decode_fields <get var="totales"/></srai>
+          </set>
+
+          <set var="n_capi_preguntado">
+            <srai>SUMA <get var="n_capi_preguntado"/> <get var="n_capi_preguntado"/></srai>
+          </set>
+          <set var="n_capi_preguntado">
+            <map name="predecessor"><get var="n_capi_preguntado"/></map>
+          </set>
+
+          <set var="existe">
+            <srai>SELECTITEM <get var="n_capi_preguntado"/> IN <get var="totales"/></srai>
+          </set>
+
+        </think>
+
+        <condition var="existe">
+          <li value="unknown">
+            El capitulo no existe
+          </li>
+
+          <li>
+            <set var="existe">
+              <srai>decode <get var="existe"/></srai>
+            </set>
+          </li>
+        </condition>
+
+      </li>
+
+    </condition>
+
+  </template>
+</category>
+
+<category>
+  <pattern>Cuanto dura el capitulo * de la temporada <set>number</set> de la serie * </pattern>
+  <template>
+    <think>
+      <set var="dur_obtenida">
+        <srai>OBTENERDURACION <star index="1"/> <star index="3"/></srai>
+      </set>
+    </think>
+
+    <condition var="dur_obtenida">
+      <li value="unknown">
+        El capitulo no existe
+      </li>
+
+      <li>
+        El capitulo <star index="1"/> de la temporada <star index="2"/> de la serie <star index="3"/> dura <get var="dur_obtenida"/> minutos
+      </li>
+
+    </condition>
+
+  </template>
+
+</category>
+
+</aiml>
